@@ -1,4 +1,4 @@
-package org.example;
+package org.java2.data_retrieval;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
