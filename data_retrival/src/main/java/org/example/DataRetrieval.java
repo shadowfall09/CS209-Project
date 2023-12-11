@@ -11,7 +11,7 @@ import java.util.zip.GZIPInputStream;
 
 import static java.lang.Thread.sleep;
 
-public class DataRetrival {
+public class DataRetrieval {
     public static void main(String[] args) throws Exception {
         int pageCount = 1;
         int maxPageCount = 2000;
