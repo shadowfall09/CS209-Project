@@ -9,7 +9,7 @@ import static java.lang.Thread.sleep;
 
 public class DataRetrival {
     public static void main(String[] args) throws Exception {
-        int pageCount = 98;
+        int pageCount = 1;
         int maxPageCount = 100;
         try {
             for (; pageCount <= maxPageCount; pageCount++) {
