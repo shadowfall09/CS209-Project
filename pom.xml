@@ -11,8 +11,12 @@
     <groupId>com.StackOverFlow</groupId>
     <artifactId>CS209-Project</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>CS209-Project</name>
     <description>CS209-Project</description>
+    <modules>
+        <module>data_retrival</module>
+    </modules>
     <properties>
         <java.version>17</java.version>
     </properties>
