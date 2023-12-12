@@ -1,0 +1,5 @@
+catch (PersistenceException e) {
+    if (!(e.getCause() instanceof SQLIntegrityConstraintViolationException)) {
+        throw new RuntimeException(e);
+    }
+}
