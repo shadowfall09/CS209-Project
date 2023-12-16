@@ -4,7 +4,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://47.107.113.54:3306/stackoverflow
+    url: jdbc:mysql://localhost/stackoverflow
     username: root
-    password: soawjd47628
+    password: acer1212
 

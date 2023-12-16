@@ -24,6 +24,8 @@ public class Answer {
 
     private String title;
 
+    private String tokenization;
+
     private Boolean isAccepted;
 
     private String questionId;

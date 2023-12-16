@@ -7,6 +7,7 @@ create table answer
     down_vote        int         null,
     up_vote          int         null,
     content          text        null,
+    tokenization     text        null,
     score            int         null,
     title            text        null,
     is_accepted      tinyint(1)  null,
@@ -34,6 +35,7 @@ create table comment
         primary key,
     owner_id      varchar(20) null,
     content       text        null,
+    tokenization  text        null,
     score         int         null,
     creation_date datetime    null,
     post_id       varchar(20) null
@@ -63,7 +65,8 @@ create table question
     last_active_date datetime    null,
     creation_date    datetime    null,
     title            text        null,
-    content          text        null
+    content          text        null,
+    tokenization     text        null
 );
 
 -- auto-generated definition

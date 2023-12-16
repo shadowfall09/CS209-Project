@@ -35,7 +35,7 @@ public class ImportDataToDatabase {
 //        hikariConfig.setPassword("soawjd47628");
         hikariConfig.setJdbcUrl("jdbc:mysql://localhost:3306/stackoverflow");
         hikariConfig.setUsername("root");
-        hikariConfig.setPassword("123456");
+        hikariConfig.setPassword("acer1212");
 
         // Create a DataSource
         HikariDataSource dataSource = new HikariDataSource(hikariConfig);
@@ -64,7 +64,7 @@ public class ImportDataToDatabase {
             TagMapper tagMapper = sqlSession.getMapper(TagMapper.class);
             int fileId = 1;
             Path filePath = Paths.get("data_retrieval/Data/originFile" + fileId + ".json");
-            while (Files.exists(filePath)) {
+            while (Files.exists(filePath)&&fileId<=80) {
                 System.out.println(fileId);
                 String content = Files.readString(filePath);
                 JSONObject jsonObject = JSONObject.parseObject(content);

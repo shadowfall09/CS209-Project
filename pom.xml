@@ -81,6 +81,17 @@
             <version>24.0.1</version>
             <scope>compile</scope>
         </dependency>
+            <!-- Stanford NLP -->
+        <dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.17.1</version>
+        </dependency>
     </dependencies>
 
     <build>

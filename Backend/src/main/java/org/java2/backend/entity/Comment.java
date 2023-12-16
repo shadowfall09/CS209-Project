@@ -22,4 +22,6 @@ public class Comment {
     private LocalDateTime creationDate;
 
     private String postId;
+
+    private String tokenization;
 }

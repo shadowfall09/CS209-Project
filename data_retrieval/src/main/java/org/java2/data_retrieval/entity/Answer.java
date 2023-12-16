@@ -29,4 +29,6 @@ public class Answer {
     private String questionId;
 
     private String ownerId;
+
+    private String tokenization;
 }
