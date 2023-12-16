@@ -26,7 +26,7 @@ import java.util.*;
 public class tokenization {
 
     public final static Set<String> stopwords = new HashSet<>(Arrays.asList(
-            "a", "an", "the", "is", "at", "which", "on","over","and", "but", "if", "or", "because", "as", "until", "while"));
+            "in","a", "an", "the", "is", "at", "which", "on","over","and", "but", "if", "or", "because", "as", "until", "while"));
     public final static Set<String> punctuations = new HashSet<>(Arrays.asList(
             ",", ".", "?", "!", ":", ";", "\"", "'", "(", ")", "[", "]", "{", "}", "<", ">", "/", "\\", "|", "-", "_", "=", "+", "*", "&", "^", "%", "$", "#", "@", "`", "~"));
     public static StanfordCoreNLP pipeline;
