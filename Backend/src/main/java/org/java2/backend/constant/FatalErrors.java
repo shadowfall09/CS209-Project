@@ -46,4 +46,5 @@ public enum FatalErrors {
     public String getErrorName() {
         return this.errorName;
     }
+
 }
