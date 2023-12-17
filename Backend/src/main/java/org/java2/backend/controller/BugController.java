@@ -46,7 +46,7 @@ public class BugController {
                     return split[split.length - 1];
             }).toList();
             for (String s : tokenList) {
-                if (s.toLowerCase().contains("exception")) {
+                if (s.toLowerCase().endsWith("exception")) {
                     if (map.containsKey(s)) {
                         map.put(s, map.get(s) + 1);
                     } else {
@@ -82,7 +82,7 @@ public class BugController {
             }).toList();
             for (String s : tokenList) {
                 for (FatalErrors error: FatalErrors.values()) {
-                    if (s.toLowerCase().contains(error.getErrorName().toLowerCase())) {
+                    if (s.toLowerCase().endsWith(error.getErrorName().toLowerCase())) {
                         if (map.containsKey(s)) {
                             map.put(s, map.get(s) + 1);
                         } else {

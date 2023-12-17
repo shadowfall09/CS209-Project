@@ -35,7 +35,7 @@ public class tokenization {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl("jdbc:mysql://localhost:3306/stackoverflow");
         hikariConfig.setUsername("root");
-        hikariConfig.setPassword("acer1212");
+        hikariConfig.setPassword("123456");
 
         // Create a DataSource
         HikariDataSource dataSource = new HikariDataSource(hikariConfig);

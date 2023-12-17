@@ -6,5 +6,5 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost/stackoverflow
     username: root
-    password: acer1212
+    password: 123456
 
