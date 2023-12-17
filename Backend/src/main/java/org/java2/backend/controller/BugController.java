@@ -35,11 +35,13 @@ public class BugController {
 
     @GetMapping("/Exception/{limit}")
     public Result Exception(HttpServletResponse response, @PathVariable("limit") Integer limit) {
+        log.info("Request Exception Info");
         return getResult(response, limit, getException(false));
     }
 
     @GetMapping("/FatalError/{limit}")
     public Result FatalError(HttpServletResponse response, @PathVariable("limit") Integer limit) {
+        log.info("Request Fatal Error Info");
         return getResult(response, limit, getFatalError(false));
     }
 
@@ -56,6 +58,7 @@ public class BugController {
 
     @GetMapping("/SyntaxError/{limit}")
     public Result SyntaxError(HttpServletResponse response, @PathVariable("limit") Integer limit) {
+        log.info("Request Syntax Error Info");
         return getResult(response, limit, getSyntaxError());
     }
 
@@ -175,13 +178,34 @@ public class BugController {
 
     @GetMapping("/Error/{limit}")
     public Result getError(HttpServletResponse response, @PathVariable("limit") Integer limit) {
+        log.info("Request Error Info");
         HashMap<String,Integer> errors = getSyntaxError();
         errors.putAll(getFatalError(false));
         return getResult(response, limit, errors);
     }
 
+    @GetMapping("/Exception/{exception}")
+    public Result getException(HttpServletResponse response, @PathVariable("exception") String exception) {
+        log.info("Request Specific Exception Info");
+        HashMap<String,Integer> exceptions = getException(false);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(exception, exceptions.get(exception));
+        return Result.success(response, jsonObject);
+    }
+
+    @GetMapping("/Error/{error}")
+    public Result getError(HttpServletResponse response, @PathVariable("error") String error) {
+        log.info("Request Specific Error Info");
+        HashMap<String,Integer> errors = getSyntaxError();
+        errors.putAll(getFatalError(false));
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(error, errors.get(error));
+        return Result.success(response, jsonObject);
+    }
+
     @GetMapping("/ErrorAndException")
     public Result getErrorAndException(HttpServletResponse response) {
+        log.info("Request Error And Exception Info");
         HashMap<String,Integer> errors = getSyntaxError();
         errors.putAll(getFatalError(true));
         long errorCount = 0;
