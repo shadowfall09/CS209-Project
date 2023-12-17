@@ -38,19 +38,21 @@ public class BugController {
         List<String> allToken = Stream.of(answerToken, questionToken, commentToken).flatMap(List::stream).toList();
         HashMap<String, Integer> map = new HashMap<>();
         for (String token : allToken) {
-            List<String> tokenList = Stream.of(token.split(" \\| ")).map(s -> {
-                String[] split = s.split("\\.");
-                if (split.length == 0)
-                    return s;
-                else
-                    return split[split.length - 1];
-            }).toList();
-            for (String s : tokenList) {
-                if (s.toLowerCase().endsWith("exception")) {
-                    if (map.containsKey(s)) {
-                        map.put(s, map.get(s) + 1);
-                    } else {
-                        map.put(s, 1);
+            if (token.toLowerCase().contains("exception")) {
+                List<String> tokenList = Stream.of(token.split(" \\| ")).map(s -> {
+                    String[] split = s.split("\\.");
+                    if (split.length == 0)
+                        return s;
+                    else
+                        return split[split.length - 1];
+                }).toList();
+                for (String s : tokenList) {
+                    if (s.toLowerCase().endsWith("exception")) {
+                        if (map.containsKey(s)) {
+                            map.put(s, map.get(s) + 1);
+                        } else {
+                            map.put(s, 1);
+                        }
                     }
                 }
             }
@@ -73,26 +75,30 @@ public class BugController {
         List<String> allToken = Stream.of(answerToken, questionToken, commentToken).flatMap(List::stream).toList();
         HashMap<String, Integer> map = new HashMap<>();
         for (String token : allToken) {
-            List<String> tokenList = Stream.of(token.split(" \\| ")).map(s -> {
-                String[] split = s.split("\\.");
-                if (split.length == 0)
-                    return s;
-                else
-                    return split[split.length - 1];
-            }).toList();
-            for (String s : tokenList) {
-                for (FatalErrors error: FatalErrors.values()) {
-                    if (s.toLowerCase().endsWith(error.getErrorName().toLowerCase())) {
+            if (token.toLowerCase().contains("error")||token.toLowerCase().contains("threaddeath")) {
+                List<String> tokenList = Stream.of(token.split(" \\| ")).map(s -> {
+                    String[] split = s.split("\\.");
+                    if (split.length == 0)
+                        return s;
+                    else
+                        return split[split.length - 1];
+                }).toList();
+                for (String s : tokenList) {
+                    if (s.toLowerCase().endsWith("error")) {
                         if (map.containsKey(s)) {
                             map.put(s, map.get(s) + 1);
                         } else {
                             map.put(s, 1);
                         }
-                        break;
                     }
                 }
             }
         }
+        map.remove("error");
+        map.remove("errors");
+        map.remove("Error");
+        map.remove("Errors");
+        map.remove("ERROR");
         TreeMap<String, Integer> sortedMap = new TreeMap<>(new ValueComparator(map));
         sortedMap.putAll(map);
         return Result.success(response, sortedMap);
