@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.java2.backend.common.Result;
 import org.java2.backend.constant.SyntaxErrors;
 import org.java2.backend.entity.Answer;
@@ -15,8 +16,8 @@ import org.java2.backend.service.ICommentService;
 import org.java2.backend.service.IQuestionService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @RestController
@@ -184,23 +185,39 @@ public class BugController {
         return getResult(response, limit, errors);
     }
 
-    @GetMapping("/Exception/{exception}")
+    @GetMapping("/Exception/search/{exception}")
     public Result getException(HttpServletResponse response, @PathVariable("exception") String exception) {
         log.info("Request Specific Exception Info");
         HashMap<String,Integer> exceptions = getException(false);
+        return getSearchResult(response, exception, exceptions);
+    }
+
+    @NotNull
+    private Result getSearchResult(HttpServletResponse response, @PathVariable("exception") String exception, HashMap<String, Integer> exceptions) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(exception, exceptions.get(exception));
+        String highest = "";
+        int highestCount = 0;
+        for (String s : exceptions.keySet()) {
+            String regex = ".*"+s.toLowerCase()+".*";
+            if (Pattern.matches(regex, exception.toLowerCase())|| LevenshteinDistance.getDefaultInstance().apply(s, exception.toLowerCase())<=3) {
+                if (exceptions.get(s)>highestCount) {
+                    highest = s;
+                    highestCount = exceptions.get(s);
+                }
+            }
+        }
+        if (highestCount==0) {
+            jsonObject.put("Result", null);
+        }else jsonObject.put(highest,highestCount);
         return Result.success(response, jsonObject);
     }
 
-    @GetMapping("/Error/{error}")
+    @GetMapping("/Error/search/{error}")
     public Result getError(HttpServletResponse response, @PathVariable("error") String error) {
         log.info("Request Specific Error Info");
         HashMap<String,Integer> errors = getSyntaxError();
         errors.putAll(getFatalError(false));
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(error, errors.get(error));
-        return Result.success(response, jsonObject);
+        return getSearchResult(response, error, errors);
     }
 
     @GetMapping("/ErrorAndException")
