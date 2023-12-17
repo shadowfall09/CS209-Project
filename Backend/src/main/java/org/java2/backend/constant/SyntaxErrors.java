@@ -29,4 +29,6 @@ public class SyntaxErrors {
             Map.entry("Missing curly braces","'}' expected"),
             Map.entry("Not a statement","not a statement")
     );
+
+
 }
