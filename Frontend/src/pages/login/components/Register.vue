@@ -71,10 +71,8 @@
 </template>
 
 <script setup lang="ts">
-import type { FormRule, SubmitContext } from 'tdesign-vue-next';
-import { MessagePlugin } from 'tdesign-vue-next';
 import { ref } from 'vue';
-
+import { MessagePlugin, FormRule } from 'tdesign-vue-next';
 import { useCounter } from '@/hooks';
 
 const INITIAL_DATA = {
@@ -106,8 +104,8 @@ const [countDown, handleCounter] = useCounter();
 
 const emit = defineEmits(['registerSuccess']);
 
-const onSubmit = (ctx: SubmitContext) => {
-  if (ctx.validateResult === true) {
+const onSubmit = ({ validateResult }) => {
+  if (validateResult === true) {
     if (!formData.value.checked) {
       MessagePlugin.error('请同意TDesign服务协议和TDesign 隐私声明');
       return;
@@ -117,12 +115,12 @@ const onSubmit = (ctx: SubmitContext) => {
   }
 };
 
-const switchType = (val: string) => {
+const switchType = (val) => {
   form.value.reset();
   type.value = val;
 };
 </script>
 
 <style lang="less" scoped>
-@import '../index.less';
+@import url('../index.less');
 </style>

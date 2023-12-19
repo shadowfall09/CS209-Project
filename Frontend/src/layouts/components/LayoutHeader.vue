@@ -11,11 +11,9 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
-
+import { storeToRefs } from 'pinia';
 import { usePermissionStore, useSettingStore } from '@/store';
-
 import LHeader from './Header.vue';
 
 const permissionStore = usePermissionStore();

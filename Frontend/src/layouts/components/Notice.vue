@@ -3,17 +3,12 @@
     <template #content>
       <div class="header-msg">
         <div class="header-msg-top">
-          <p>{{ $t('layout.notice.title') }}</p>
-          <t-button
-            v-if="unreadMsg.length > 0"
-            class="clear-btn"
-            variant="text"
-            theme="primary"
-            @click="setRead('all')"
-            >{{ $t('layout.notice.clear') }}</t-button
+          <p>通知</p>
+          <t-button v-if="unreadMsg.length > 0" class="clear-btn" variant="text" theme="primary" @click="setRead('all')"
+            >清空</t-button
           >
         </div>
-        <t-list v-if="unreadMsg.length > 0" class="narrow-scrollbar" :split="false">
+        <t-list v-if="unreadMsg.length > 0" class="narrow-scrollbar" :split="true">
           <t-list-item v-for="(item, index) in unreadMsg" :key="index">
             <div>
               <p class="msg-content">{{ item.content }}</p>
@@ -21,25 +16,28 @@
             </div>
             <p class="msg-time">{{ item.date }}</p>
             <template #action>
-              <t-button size="small" variant="outline" @click="setRead('radio', item)">
-                {{ $t('layout.notice.setRead') }}
-              </t-button>
+              <t-button size="small" variant="outline" @click="setRead('radio', item)"> 设为已读 </t-button>
             </template>
           </t-list-item>
         </t-list>
 
         <div v-else class="empty-list">
           <img src="https://tdesign.gtimg.com/pro-template/personal/nothing.png" alt="空" />
-          <p>{{ $t('layout.notice.empty') }}</p>
+          <p>暂无通知</p>
         </div>
-        <div v-if="unreadMsg.length > 0" class="header-msg-bottom">
-          <t-button class="header-msg-bottom-link" variant="text" theme="default" block @click="goDetail">{{
-            $t('layout.notice.viewAll')
-          }}</t-button>
+        <div class="header-msg-bottom">
+          <t-button
+            v-if="unreadMsg.length > 0"
+            class="header-msg-bottom-link"
+            variant="text"
+            theme="primary"
+            @click="goDetail"
+            >查看全部</t-button
+          >
         </div>
       </div>
     </template>
-    <t-badge :count="unreadMsg.length" :offset="[4, 4]">
+    <t-badge :count="unreadMsg.length" :offset="[12, 8]">
       <t-button theme="default" shape="square" variant="text">
         <t-icon name="mail" />
       </t-button>
@@ -48,9 +46,8 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-
+import { storeToRefs } from 'pinia';
 import { useNotificationStore } from '@/store';
 import type { NotificationItem } from '@/types/interface';
 
@@ -82,71 +79,72 @@ const goDetail = () => {
 <style lang="less" scoped>
 .header-msg {
   width: 400px;
-  // height: 440px;
-  margin: calc(0px - var(--td-comp-paddingTB-xs)) calc(0px - var(--td-comp-paddingLR-s));
+  height: 500px;
 
   .empty-list {
-    // height: calc(100% - 120px);
+    height: calc(100% - 104px);
     text-align: center;
-    padding: var(--td-comp-paddingTB-xxl) 0;
-    font: var(--td-font-body-medium);
+    padding-top: 135px;
+    font-size: 14px;
     color: var(--td-text-color-secondary);
 
     img {
-      width: var(--td-comp-size-xxxxl);
+      width: 63px;
     }
 
     p {
-      margin-top: var(--td-comp-margin-xs);
+      margin-top: 30px;
     }
   }
 
   &-top {
     position: relative;
-    font: var(--td-font-title-medium);
+    height: 56px;
+    font-size: 16px;
     color: var(--td-text-color-primary);
-    text-align: left;
-    padding: var(--td-comp-paddingTB-l) var(--td-comp-paddingLR-xl) 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    text-align: center;
+    line-height: 56px;
+    border-bottom: 1px solid var(--td-component-border);
 
     .clear-btn {
-      right: calc(var(--td-comp-paddingTB-l) - var(--td-comp-paddingLR-xl));
+      position: absolute;
+      top: 12px;
+      right: 24px;
     }
   }
 
   &-bottom {
+    height: 48px;
     align-items: center;
     display: flex;
     justify-content: center;
-    padding: var(--td-comp-paddingTB-s) var(--td-comp-paddingLR-s);
-    border-top: 1px solid var(--td-component-stroke);
 
     &-link {
       text-decoration: none;
+      font-size: 14px;
+      color: var(--td-brand-color);
+      line-height: 48px;
       cursor: pointer;
-      color: var(--td-text-color-placeholder);
     }
   }
 
   .t-list {
     height: calc(100% - 104px);
-    padding: var(--td-comp-margin-s) var(--td-comp-margin-s);
   }
 
   .t-list-item {
     overflow: hidden;
     width: 100%;
-    padding: var(--td-comp-paddingTB-l) var(--td-comp-paddingLR-l);
+    padding: 16px 24px;
     border-radius: var(--td-radius-default);
-    font: var(--td-font-body-medium);
+    font-size: 14px;
     color: var(--td-text-color-primary);
+    line-height: 22px;
     cursor: pointer;
-    transition: background-color 0.2s linear;
 
     &:hover {
-      background-color: var(--td-bg-color-container-hover);
+      transition: background 0.2s ease;
+      background: var(--td-bg-color-container-hover);
 
       .msg-content {
         color: var(--td-brand-color);
@@ -154,7 +152,7 @@ const goDetail = () => {
 
       .t-list-item__action {
         button {
-          bottom: var(--td-comp-margin-l);
+          bottom: 16px;
           opacity: 1;
         }
       }
@@ -166,7 +164,7 @@ const goDetail = () => {
     }
 
     .msg-content {
-      margin-bottom: var(--td-comp-margin-s);
+      margin-bottom: 16px;
     }
 
     .msg-type {
@@ -177,7 +175,7 @@ const goDetail = () => {
       button {
         opacity: 0;
         position: absolute;
-        right: var(--td-comp-margin-xxl);
+        right: 24px;
         bottom: -6px;
       }
     }
@@ -186,9 +184,20 @@ const goDetail = () => {
       transition: all 0.2s ease;
       opacity: 1;
       position: absolute;
-      right: var(--td-comp-margin-xxl);
-      bottom: var(--td-comp-margin-l);
+      right: 24px;
+      bottom: 16px;
       color: var(--td-text-color-secondary);
+    }
+  }
+}
+
+.t-button {
+  margin: 0 8px;
+
+  .t-icon {
+    font-size: 20px;
+    &.general {
+      margin-right: 16px;
     }
   }
 }

@@ -37,25 +37,33 @@ const navToHelper = () => {
 
 <style lang="less" scoped>
 .login-header {
-  padding: 0 var(--td-comp-paddingLR-xl);
+  padding: 0 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(5px);
   color: var(--td-text-color-primary);
-  height: var(--td-comp-size-xxxl);
 
   .logo {
-    width: 178px;
-    height: var(--td-comp-size-s);
+    width: 188px;
   }
 
   .operations-container {
     display: flex;
     align-items: center;
-
     .t-button {
-      margin-left: var(--td-comp-margin-l);
+      margin-left: 16px;
+    }
+
+    .icon {
+      height: 20px;
+      width: 20px;
+      padding: 6px;
+      box-sizing: content-box;
+
+      &:hover {
+        cursor: pointer;
+      }
     }
   }
 }

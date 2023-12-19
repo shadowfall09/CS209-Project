@@ -1,5 +1,5 @@
-import type { CardListResult, ListResult } from '@/api/model/listModel';
 import { request } from '@/utils/request';
+import type { CardListResult, ListResult } from '@/api/model/listModel';
 
 const Api = {
   BaseList: '/get-list',

@@ -75,7 +75,7 @@ const iconCls = computed(() => ['trend-icon-container']);
     }
 
     &__reverse {
-      color: #fff;
+      color: #ffffff;
       display: inline-flex;
       align-items: center;
       justify-content: center;

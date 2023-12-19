@@ -1,5 +1,5 @@
 <template>
-  <t-card theme="poster2" :bordered="false">
+  <t-card theme="poster2">
     <template #avatar>
       <t-avatar size="56px">
         <template #icon>
@@ -13,7 +13,7 @@
     </template>
     <template #status>
       <t-tag :theme="product.isSetup ? 'success' : 'default'" :disabled="!product.isSetup">{{
-        product.isSetup ? $t('components.isSetup.on') : $t('components.isSetup.off')
+        product.isSetup ? '已启用' : '已停用'
       }}</t-tag>
     </template>
     <template #content>
@@ -36,12 +36,12 @@
         trigger="click"
         :options="[
           {
-            content: $t('components.manage'),
+            content: '管理',
             value: 'manage',
             onClick: () => handleClickManage(product),
           },
           {
-            content: $t('components.delete'),
+            content: '删除',
             value: 'delete',
             onClick: () => handleClickDelete(product),
           },
@@ -55,16 +55,16 @@
   </t-card>
 </template>
 <script setup lang="ts">
+import type { PropType } from 'vue';
 import {
-  AddIcon,
+  ShopIcon,
   CalendarIcon,
+  ServiceIcon,
+  UserAvatarIcon,
   LaptopIcon,
   MoreIcon,
-  ServiceIcon,
-  ShopIcon,
-  UserAvatarIcon,
+  AddIcon,
 } from 'tdesign-icons-vue-next';
-import type { PropType } from 'vue';
 
 export interface CardProductType {
   type: number;
@@ -103,19 +103,22 @@ const handleClickDelete = (product: CardProductType) => {
     min-height: 140px;
 
     &--name {
-      margin-bottom: var(--td-comp-margin-s);
-      font: var(--td-font-title-medium);
+      margin-bottom: 8px;
+      font-size: 16px;
+      font-weight: 400;
       color: var(--td-text-color-primary);
     }
 
     &--desc {
       color: var(--td-text-color-secondary);
-      font: var(--td-font-body-small);
+      font-size: 12px;
+      line-height: 20px;
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
+      height: 40px;
     }
   }
 }

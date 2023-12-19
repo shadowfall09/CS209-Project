@@ -24,19 +24,19 @@
 </template>
 
 <script setup lang="ts">
-import '@/style/layout.less';
-
-import { storeToRefs } from 'pinia';
 import { computed, onMounted, watch } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
-
-import { prefix } from '@/config/global';
 import { useSettingStore, useTabsRouterStore } from '@/store';
 
-import LayoutContent from './components/LayoutContent.vue';
-import LayoutHeader from './components/LayoutHeader.vue';
-import LayoutSideNav from './components/LayoutSideNav.vue';
 import SettingCom from './setting.vue';
+import LayoutHeader from './components/LayoutHeader.vue';
+import LayoutContent from './components/LayoutContent.vue';
+import LayoutSideNav from './components/LayoutSideNav.vue';
+
+import { prefix } from '@/config/global';
+
+import '@/style/layout.less';
 
 const route = useRoute();
 const settingStore = useSettingStore();

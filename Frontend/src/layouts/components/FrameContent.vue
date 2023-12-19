@@ -6,11 +6,10 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { CSSProperties, watch, ref, unref, computed } from 'vue';
 import debounce from 'lodash/debounce';
-import { computed, CSSProperties, ref, unref, watch } from 'vue';
-
-import { prefix } from '@/config/global';
 import { useWindowSizeFn } from '@/hooks/event/useWindowSizeFn';
+import { prefix } from '@/config/global';
 import { useSettingStore } from '@/store';
 
 defineProps({
@@ -25,7 +24,7 @@ const settingStore = useSettingStore();
 
 const getWrapStyle = computed((): CSSProperties => {
   return {
-    height: `${heightRef.value}px`,
+    height: `${unref(heightRef)}px`,
   };
 });
 

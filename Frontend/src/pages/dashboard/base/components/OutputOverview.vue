@@ -1,11 +1,11 @@
 <template>
-  <t-card :bordered="false">
+  <t-card>
     <t-row>
       <t-col :xs="12" :xl="9">
         <t-card
           :bordered="false"
-          :title="$t('pages.dashboardBase.outputOverview.title')"
-          :subtitle="$t('pages.dashboardBase.outputOverview.subtitle')"
+          title="出入库概览"
+          subtitle="(件)"
           :class="{ 'dashboard-overview-card': true, 'overview-panel': true }"
         >
           <template #actions>
@@ -17,40 +17,37 @@
               @change="onStokeDataChange"
             />
           </template>
-          <div id="stokeContainer" style="width: 100%; height: 351px" class="dashboard-chart-container"></div>
+          <div
+            id="stokeContainer"
+            ref="stokeContainer"
+            style="width: 100%; height: 351px"
+            class="dashboard-chart-container"
+          ></div>
         </t-card>
       </t-col>
       <t-col :xs="12" :xl="3">
         <t-card :bordered="false" :class="{ 'dashboard-overview-card': true, 'export-panel': true }">
           <template #actions>
-            <t-button>{{ $t('pages.dashboardBase.outputOverview.export') }}</t-button>
+            <t-button>导出数据</t-button>
           </template>
           <t-row>
             <t-col :xs="6" :xl="12">
-              <t-card
-                :bordered="false"
-                :subtitle="$t('pages.dashboardBase.outputOverview.month.input')"
-                class="inner-card"
-              >
+              <t-card :bordered="false" subtitle="本月出库总计（件）" class="inner-card">
                 <div class="inner-card__content">
                   <div class="inner-card__content-title">1726</div>
                   <div class="inner-card__content-footer">
-                    {{ $t('pages.dashboardBase.outputOverview.since') }}
+                    自从上周以来
                     <trend class="trend-tag" type="down" :is-reverse-color="false" describe="20.3%" />
                   </div>
                 </div>
               </t-card>
             </t-col>
             <t-col :xs="6" :xl="12">
-              <t-card
-                :bordered="false"
-                :subtitle="$t('pages.dashboardBase.outputOverview.month.output')"
-                class="inner-card"
-              >
+              <t-card :bordered="false" subtitle="本月入库总计（件）" class="inner-card">
                 <div class="inner-card__content">
                   <div class="inner-card__content-title">226</div>
                   <div class="inner-card__content-footer">
-                    {{ $t('pages.dashboardBase.outputOverview.since') }}
+                    自从上周以来
                     <trend class="trend-tag" type="down" :is-reverse-color="false" describe="20.3%" />
                   </div>
                 </div>
@@ -70,19 +67,18 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useWindowSize } from '@vueuse/core';
-import { LineChart } from 'echarts/charts';
-import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components';
+import { onMounted, watch, ref, onUnmounted, nextTick, computed } from 'vue';
+
 import * as echarts from 'echarts/core';
+import { TooltipComponent, LegendComponent, GridComponent } from 'echarts/components';
+import { LineChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { useSettingStore } from '@/store';
+import { LAST_7_DAYS } from '@/utils/date';
+import { changeChartsTheme } from '@/utils/color';
 
 // 导入样式
 import Trend from '@/components/trend/index.vue';
-import { useSettingStore } from '@/store';
-import { changeChartsTheme } from '@/utils/color';
-import { LAST_7_DAYS } from '@/utils/date';
-
 import { constructInitDataset } from '../index';
 
 echarts.use([TooltipComponent, LegendComponent, GridComponent, LineChart, CanvasRenderer]);
@@ -128,11 +124,11 @@ onMounted(() => {
   nextTick(() => {
     updateContainer();
   });
+  window.addEventListener('resize', updateContainer, false);
 });
 
-const { width, height } = useWindowSize();
-watch([width, height], () => {
-  updateContainer();
+onUnmounted(() => {
+  window.removeEventListener('resize', updateContainer);
 });
 
 watch(
@@ -159,23 +155,14 @@ const onStokeDataChange = (checkedValues: string[]) => {
 </script>
 
 <style lang="less" scoped>
-:deep(.t-card__body) {
-  padding: var(--td-comp-paddingTB-xxl) var(--td-comp-paddingLR-xxl);
-}
-
 .dashboard-overview-card {
   :deep(.t-card__header) {
-    padding: 0;
+    padding-bottom: 24px;
   }
 
   :deep(.t-card__title) {
-    font: var(--td-font-title-large);
-    font-weight: 400;
-  }
-
-  :deep(.t-card__body) {
-    margin-top: var(--td-comp-margin-xxl);
-    padding: 0;
+    font-size: 20px;
+    font-weight: 500;
   }
 
   &.overview-panel {
@@ -184,36 +171,30 @@ const onStokeDataChange = (checkedValues: string[]) => {
 
   &.export-panel {
     border-left: none;
-    margin-left: calc(var(--td-comp-margin-xxxl) + var(--td-comp-margin-xxxl));
   }
 }
 
 .inner-card {
-  margin-top: var(--td-comp-margin-s);
-  margin-bottom: var(--td-comp-margin-xxxxl);
+  padding: 24px 0;
 
   :deep(.t-card__header) {
     padding-bottom: 0;
   }
 
-  :deep(.t-card__body) {
-    margin-top: var(--td-comp-margin-s);
-  }
-
   &__content {
     &-title {
-      font-size: var(--td-font-size-headline-medium);
-      line-height: var(--td-line-height-headline-medium);
+      font-size: 36px;
+      line-height: 44px;
     }
 
     &-footer {
       display: flex;
       align-items: center;
+      line-height: 22px;
       color: var(--td-text-color-placeholder);
-      margin-top: var(--td-comp-margin-xxl);
 
       .trend-tag {
-        margin-left: var(--td-comp-margin-s);
+        margin-left: 4px;
       }
     }
   }

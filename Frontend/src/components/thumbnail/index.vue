@@ -24,7 +24,7 @@ const className = computed(() => {
 });
 </script>
 <style lang="less" scoped>
-@import '@/style/index.less';
+@import url('@/style/index.less');
 
 .thumbnail {
   &-container {

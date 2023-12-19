@@ -1,19 +1,16 @@
 // axios配置  可自行根据项目进行更改，只需更改该文件即可，其他文件可以不动
-import type { AxiosInstance } from 'axios';
 import isString from 'lodash/isString';
 import merge from 'lodash/merge';
-
-import { ContentTypeEnum } from '@/constants';
-import { useUserStore } from '@/store';
-
-import { VAxios } from './Axios';
 import type { AxiosTransform, CreateAxiosOptions } from './AxiosTransform';
-import { formatRequestDate, joinTimestamp, setObjToUrlParams } from './utils';
+import { VAxios } from './Axios';
+import proxy from '@/config/proxy';
+import { joinTimestamp, formatRequestDate, setObjToUrlParams } from './utils';
+import { TOKEN_NAME } from '@/config/global';
 
 const env = import.meta.env.MODE || 'development';
 
 // 如果是mock模式 或 没启用直连代理 就不配置host 会走本地Mock拦截 或 Vite 代理
-const host = env === 'mock' || import.meta.env.VITE_IS_REQUEST_PROXY !== 'true' ? '' : import.meta.env.VITE_API_URL;
+const host = env === 'mock' || !proxy.isRequestProxy ? '' : proxy[env].host;
 
 // 数据处理，方便区分多种处理方式
 const transform: AxiosTransform = {
@@ -23,7 +20,7 @@ const transform: AxiosTransform = {
 
     // 如果204无内容直接返回
     const method = res.config.method?.toLowerCase();
-    if (res.status === 204 && ['put', 'patch', 'delete'].includes(method)) {
+    if (res.status === 204 || method === 'put' || method === 'patch') {
       return res;
     }
 
@@ -113,9 +110,7 @@ const transform: AxiosTransform = {
   // 请求拦截器处理
   requestInterceptors: (config, options) => {
     // 请求之前处理config
-    const userStore = useUserStore();
-    const { token } = userStore;
-
+    const token = localStorage.getItem(TOKEN_NAME);
     if (token && (config as Recordable)?.requestOptions?.withToken !== false) {
       // jwt token
       (config as Recordable).headers.Authorization = options.authenticationScheme
@@ -131,7 +126,7 @@ const transform: AxiosTransform = {
   },
 
   // 响应错误处理
-  responseInterceptorsCatch: (error: any, instance: AxiosInstance) => {
+  responseInterceptorsCatch: (error: any) => {
     const { config } = error;
     if (!config || !config.requestOptions.retry) return Promise.reject(error);
 
@@ -146,8 +141,8 @@ const transform: AxiosTransform = {
         resolve(config);
       }, config.requestOptions.retry.delay || 1);
     });
-    config.headers = { ...config.headers, 'Content-Type': ContentTypeEnum.Json };
-    return backoff.then((config) => instance.request(config));
+    config.headers = { ...config.headers, 'Content-Type': 'application/json;charset=UTF-8' };
+    return backoff.then((config) => request.request(config));
   },
 };
 
@@ -163,7 +158,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
         // 携带Cookie
         withCredentials: true,
         // 头信息
-        headers: { 'Content-Type': ContentTypeEnum.Json },
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
         // 数据处理方式
         transform,
         // 配置项，下面的选项都可以在独立的接口请求中覆盖
@@ -175,7 +170,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
           // 接口前缀
           // 例如: https://www.baidu.com/api
           // urlPrefix: '/api'
-          urlPrefix: import.meta.env.VITE_API_URL_PREFIX,
+          urlPrefix: '/api',
           // 是否返回原生响应头 比如：需要获取响应头时使用该属性
           isReturnNativeResponse: false,
           // 需要对返回数据进行处理
@@ -186,10 +181,8 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
           formatDate: true,
           // 是否加入时间戳
           joinTime: true,
-          // 是否忽略请求取消令牌
-          // 如果启用，则重复请求时不进行处理
-          // 如果禁用，则重复请求时会取消当前请求
-          ignoreCancelToken: true,
+          // 忽略重复请求
+          ignoreRepeatRequest: true,
           // 是否携带token
           withToken: true,
           // 重试

@@ -1,16 +1,16 @@
-import path from 'node:path';
-
-import vue from '@vitejs/plugin-vue';
-import vueJsx from '@vitejs/plugin-vue-jsx';
-import { ConfigEnv, loadEnv, UserConfig } from 'vite';
+import { ConfigEnv, UserConfig, loadEnv } from 'vite';
 import { viteMockServe } from 'vite-plugin-mock';
+import createVuePlugin from '@vitejs/plugin-vue';
+import vueJsx from '@vitejs/plugin-vue-jsx';
 import svgLoader from 'vite-svg-loader';
+
+import path from 'path';
 
 const CWD = process.cwd();
 
 // https://vitejs.dev/config/
 export default ({ mode }: ConfigEnv): UserConfig => {
-  const { VITE_BASE_URL, VITE_API_URL_PREFIX } = loadEnv(mode, CWD);
+  const { VITE_BASE_URL } = loadEnv(mode, CWD);
   return {
     base: VITE_BASE_URL,
     resolve: {
@@ -32,11 +32,11 @@ export default ({ mode }: ConfigEnv): UserConfig => {
     },
 
     plugins: [
-      vue(),
+      createVuePlugin(),
       vueJsx(),
       viteMockServe({
         mockPath: 'mock',
-        enable: true,
+        localEnabled: true,
       }),
       svgLoader(),
     ],
@@ -45,7 +45,7 @@ export default ({ mode }: ConfigEnv): UserConfig => {
       port: 3002,
       host: '0.0.0.0',
       proxy: {
-        [VITE_API_URL_PREFIX]: 'http://127.0.0.1:3000/',
+        '/api': 'http://127.0.0.1:3000/',
       },
     },
   };

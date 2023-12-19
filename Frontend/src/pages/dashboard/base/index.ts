@@ -1,15 +1,11 @@
 import dayjs from 'dayjs';
-import { EChartsOption } from 'echarts';
-
 import { TChartColor } from '@/config/color';
-import { t } from '@/locales/index';
-import { getRandomArray } from '@/utils/charts';
 import { getChartListColor } from '@/utils/color';
+import { getRandomArray } from '@/utils/charts';
 
 /** 首页 dashboard 折线图 */
 export function constructInitDashboardDataset(type: string) {
   const dateArray: Array<string> = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-
   const datasetAxis = {
     xAxis: {
       type: 'category',
@@ -164,16 +160,16 @@ export function constructInitDataset({
       left: 'center',
       bottom: '0',
       orient: 'horizontal',
-      data: [t('pages.dashboardBase.chart.thisMonth'), t('pages.dashboardBase.chart.lastMonth')],
+      data: ['本月', '上月'],
     },
     series: [
       {
-        name: t('pages.dashboardBase.chart.thisMonth'),
+        name: '本月',
         data: outArray,
         type: 'bar',
       },
       {
-        name: t('pages.dashboardBase.chart.lastMonth'),
+        name: '上月',
         data: inArray,
         type: 'bar',
       },
@@ -233,7 +229,7 @@ export function getLineChartDataSet({
       left: 'center',
       bottom: '0',
       orient: 'horizontal', // legend 横向布局。
-      data: [t('pages.dashboardBase.chart.thisMonth'), t('pages.dashboardBase.chart.lastMonth')],
+      data: ['本月', '上月'],
       textStyle: {
         fontSize: 12,
         color: placeholderColor,
@@ -265,7 +261,7 @@ export function getLineChartDataSet({
     },
     series: [
       {
-        name: t('pages.dashboardBase.chart.thisMonth'),
+        name: '本月',
         data: outArray,
         type: 'line',
         smooth: false,
@@ -281,7 +277,7 @@ export function getLineChartDataSet({
         },
       },
       {
-        name: t('pages.dashboardBase.chart.lastMonth'),
+        name: '上月',
         data: inArray,
         type: 'line',
         smooth: false,
@@ -310,7 +306,7 @@ export function getPieChartDataSet({
   textColor,
   placeholderColor,
   containerColor,
-}: { radius?: number } & Record<string, string>): EChartsOption {
+}: { radius?: number } & Record<string, string>) {
   return {
     color: getChartListColor(),
     tooltip: {
@@ -349,7 +345,7 @@ export function getPieChartDataSet({
         label: {
           show: true,
           position: 'center',
-          formatter: ['{value|{d}%}', '{name|{b}}'].join('\n'),
+          formatter: ['{value|{d}%}', '{name|{b}渠道占比}'].join('\n'),
           rich: {
             value: {
               color: textColor,
@@ -390,9 +386,9 @@ export function getPieChartDataSet({
         data: [
           {
             value: 1048,
-            name: t('pages.dashboardBase.topPanel.analysis.channel1'),
+            name: '线上',
           },
-          { value: radius * 7, name: t('pages.dashboardBase.topPanel.analysis.channel2') },
+          { value: radius * 7, name: '门店' },
         ],
       },
     ],
