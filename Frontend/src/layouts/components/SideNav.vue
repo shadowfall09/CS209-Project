@@ -27,7 +27,7 @@ import pgk from '../../../package.json';
 import type { MenuRoute } from '@/types/interface';
 import { getActive, getRoutesExpanded } from '@/router';
 
-import AssetLogo from '@/assets/assets-t-logo.svg?component';
+import AssetLogo from '@/assets/assets-stackoverflow-logo.svg?component';
 import AssetLogoFull from '@/assets/assets-logo-full.svg?component';
 import MenuContent from './MenuContent.vue';
 

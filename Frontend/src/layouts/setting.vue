@@ -3,7 +3,7 @@
     v-model:visible="showSettingPanel"
     size="408px"
     :footer="false"
-    header="页面配置"
+    header="系统设置"
     :close-btn="true"
     class="setting-drawer-container"
     @close-btn-click="handleCloseDrawer"
@@ -60,14 +60,14 @@
           </div>
         </t-radio-group>
 
-<!--        <div class="setting-group-title">导航布局</div>-->
-<!--        <t-radio-group v-model="formData.layout">-->
-<!--          <div v-for="(item, index) in LAYOUT_OPTION" :key="index" class="setting-layout-drawer">-->
-<!--            <t-radio-button :key="index" :value="item">-->
-<!--              <thumbnail :src="getThumbnailUrl(item)" />-->
-<!--            </t-radio-button>-->
-<!--          </div>-->
-<!--        </t-radio-group>-->
+        <div class="setting-group-title">导航布局</div>
+        <t-radio-group v-model="formData.layout">
+          <div v-for="(item, index) in LAYOUT_OPTION" :key="index" class="setting-layout-drawer">
+            <t-radio-button :key="index" :value="item">
+              <thumbnail :src="getThumbnailUrl(item)" />
+            </t-radio-button>
+          </div>
+        </t-radio-group>
       </t-form>
     </div>
   </t-drawer>
