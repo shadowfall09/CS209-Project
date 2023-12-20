@@ -44,7 +44,7 @@ const transform: AxiosTransform = {
     const { code } = data;
 
     // 这里逻辑可以根据项目进行修改
-    const hasSuccess = data && code === 0;
+    const hasSuccess = data && code === "200";
     if (hasSuccess) {
       return data.data;
     }
@@ -154,7 +154,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
         // 超时
         timeout: 10 * 1000,
         // 携带Cookie
-        withCredentials: true,
+        withCredentials: false,
         // 头信息
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
         // 数据处理方式
@@ -178,7 +178,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
           // 格式化提交参数时间
           formatDate: true,
           // 是否加入时间戳
-          joinTime: true,
+          joinTime: false,
           // 忽略重复请求
           ignoreRepeatRequest: true,
           // 是否携带token

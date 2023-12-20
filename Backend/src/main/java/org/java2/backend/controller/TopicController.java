@@ -125,6 +125,9 @@ public class TopicController {
         result.put("averageViewCount", questionService.getAverageViewCountByIds(questionIdList));
         result.put("averageVoteCount", questionService.getAverageVoteCountByIds(questionIdList));
         result.put("discussionPeopleNumber", questionService.getdiscussionPeopleNumberByIds(questionIdList));
+        Tag sum = tagService.getOne(new QueryWrapper<Tag>().select("sum(thread_number) as thread_number, sum(thread_number_2023) as thread_number2023, sum(average_view_count) as average_view_count, sum(average_vote_count) as average_vote_count, sum(discussion_people_number) as discussion_people_number"));
+        int totalSum = sum.getThreadNumber() + sum.getThreadNumber2023() + sum.getAverageViewCount() + sum.getAverageVoteCount() + sum.getDiscussionPeopleNumber();
+        result.put("comprehensiveScore", (int)(result.getIntValue("threadNumber") * (((double) sum.getThreadNumber()) / totalSum) + result.getIntValue("threadNumber2023") * (((double) sum.getThreadNumber2023()) / totalSum) + result.getIntValue("averageViewCount") * (((double) sum.getAverageViewCount()) / totalSum) + result.getIntValue("averageVoteCount") * (((double) sum.getAverageVoteCount()) / totalSum) + result.getIntValue("discussionPeopleNumber") * (((double) sum.getDiscussionPeopleNumber()) / totalSum)));
         return result;
     }
 }
