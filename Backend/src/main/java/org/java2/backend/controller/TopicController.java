@@ -1,9 +1,13 @@
 package org.java2.backend.controller;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.java2.backend.common.Result;
+import org.java2.backend.common.TopicPopularityCalculator;
+import org.java2.backend.entity.Tag;
 import org.java2.backend.service.IQuestionService;
 import org.java2.backend.service.ITagService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,14 +83,29 @@ public class TopicController {
         return Result.success(response, resultJSONObject);
     }
 
+    @GetMapping("popularity/calculateMetricsForAlTags")
+    public Result calculateMetricsForAlTags(HttpServletResponse response) {
+        int coreNumber = Runtime.getRuntime().availableProcessors();
+        int tagNumber = (int) tagService.count();
+        int size = tagNumber / coreNumber + 1;
+        for (int i = 1; i <= coreNumber; i++) {
+            TopicPopularityCalculator topicPopularityCalculator = new TopicPopularityCalculator(tagService, questionService, i, size);
+            Thread topicPopularityCalculatorThread = new Thread(topicPopularityCalculator);
+            topicPopularityCalculatorThread.start();
+        }
+        return Result.success(response, "Calculate start");
+    }
+
     private JSONObject getPopularityByTopicName(String topic) {
         JSONObject result = new JSONObject();
         result.put("topic", topic);
         List<Integer> relatedTagIdList = tagService.getIdsByKeyword(topic);
         List<String> questionIdList = questionService.getIdsByTagIds(relatedTagIdList);
         result.put("threadNumber", questionIdList.size());
+        result.put("threadNumber2023", questionService.getQuestionCount2023ByIds(questionIdList));
         result.put("averageViewCount", questionService.getAverageViewCountByIds(questionIdList));
         result.put("averageVoteCount", questionService.getAverageVoteCountByIds(questionIdList));
+        result.put("discussionPeopleNumber", questionService.getdiscussionPeopleNumberByIds(questionIdList));
         return result;
     }
 }
