@@ -55,12 +55,10 @@ const transform: AxiosTransform = {
   // 请求前处理配置
   beforeRequestHook: (config, options) => {
     const { apiUrl, isJoinPrefix, urlPrefix, joinParamsToUrl, formatDate, joinTime = true } = options;
-
     // 添加接口前缀
     if (isJoinPrefix && urlPrefix && isString(urlPrefix)) {
       config.url = `${urlPrefix}${config.url}`;
     }
-
     // 将baseUrl拼接
     if (apiUrl && isString(apiUrl)) {
       config.url = `${apiUrl}${config.url}`;
@@ -166,7 +164,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
           // 接口地址
           apiUrl: host,
           // 是否自动添加接口前缀
-          isJoinPrefix: true,
+          isJoinPrefix: false,
           // 接口前缀
           // 例如: https://www.baidu.com/api
           // urlPrefix: '/api'

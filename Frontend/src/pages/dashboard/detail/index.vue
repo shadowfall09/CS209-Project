@@ -1,13 +1,12 @@
 <template>
   <div class="dashboard-panel-detail">
-    <t-card title="本月采购申请情况" class="dashboard-detail-card">
+    <t-card title="Exception VS Error Popularity" class="dashboard-detail-card">
       <t-row :gutter="[16, 16]">
         <t-col v-for="(item, index) in PANE_LIST_DATA" :key="index" :xs="6" :xl="3">
           <t-card class="dashboard-list-card" :description="item.title">
             <div class="dashboard-list-card__number">{{ item.number }}</div>
             <div class="dashboard-list-card__text">
               <div class="dashboard-list-card__text-left">
-                环比
                 <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />
               </div>
               <t-icon name="chevron-right" />
@@ -18,41 +17,26 @@
     </t-card>
     <t-row :gutter="[16, 16]" class="row-margin">
       <t-col :xs="12" :xl="9">
-        <t-card class="dashboard-detail-card" title="采购商品申请趋势" subtitle="(件)">
-          <template #actions>
-            <t-date-range-picker
-              class="card-date-picker-container"
-              :default-value="LAST_7_DAYS"
-              theme="primary"
-              mode="date"
-              style="width: 240px"
-              @change="onMaterialChange"
-            />
-          </template>
+        <t-card class="dashboard-detail-card" title="Top Bug Popularity">
           <div id="lineContainer" style="width: 100%; height: 410px" />
         </t-card>
       </t-col>
       <t-col :xs="12" :xl="3">
-        <product-card
-          v-for="(item, index) in PRODUCT_LIST"
-          :key="index"
-          :product="item"
-          :class="{ 'row-margin': index !== 0 }"
-        />
-      </t-col>
+          <t-card title="Exception VS Error" class="dashboard-chart-card">
+            <div id="pieContainer" style="width: 100%; height: 165px" />
+          </t-card>
+          <t-card title="Fatal Error VS Syntax Error" :class="['row-margin','dashboard-chart-card']">
+            <div id="pieContainer"  style="width: 100%; height: 165px" />
+          </t-card>
+        </t-col>
     </t-row>
-    <t-card :class="['dashboard-detail-card', 'row-margin']" title="采购商品满意度分布">
-      <template #actions>
-        <t-date-range-picker
-          class="card-date-picker-container"
-          :default-value="LAST_7_DAYS"
-          theme="primary"
-          mode="date"
-          style="display: inline-block; margin-right: 8px; width: 240px"
-          @change="onSatisfyChange"
-        />
-        <t-button class="card-date-button"> 导出数据 </t-button>
-      </template>
+    <t-card :class="['dashboard-detail-card', 'row-margin']" title="Top Exception Popularity">
+      <div id="scatterContainer" style="width: 100%; height: 330px" />
+    </t-card>
+    <t-card :class="['dashboard-detail-card', 'row-margin']" title="Top Syntax Error Popularity">
+      <div id="scatterContainer" style="width: 100%; height: 330px" />
+    </t-card>
+    <t-card :class="['dashboard-detail-card', 'row-margin']" title="Top Fatal Error Popularity">
       <div id="scatterContainer" style="width: 100%; height: 330px" />
     </t-card>
   </div>
@@ -66,25 +50,30 @@ export default {
 
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, watch, computed, onDeactivated } from 'vue';
-
 import * as echarts from 'echarts/core';
 import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
 import { LineChart, ScatterChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
-import ProductCard from '@/components/product-card/index.vue';
-
 import { getFolderLineDataSet, getScatterDataSet } from './index';
-import { PANE_LIST_DATA, PRODUCT_LIST } from './constants';
-import { LAST_7_DAYS } from '@/utils/date';
+import { PANE_LIST_DATA } from './constants';
 import { useSettingStore } from '@/store';
 import { changeChartsTheme } from '@/utils/color';
-
 import Trend from '@/components/trend/index.vue';
-
+import { getErrorAndException } from '@/api/bug';
 echarts.use([GridComponent, LegendComponent, TooltipComponent, LineChart, ScatterChart, CanvasRenderer]);
 
 const store = useSettingStore();
 const chartColors = computed(() => store.chartColors);
+
+const fetchData = async () => {
+  try {
+    const { Error } = await getErrorAndException();
+    console.log(Error);
+  } catch (e) {
+    console.log(e);
+  } finally {
+  }
+};
 
 // lineChart logic
 let lineContainer: HTMLElement;
@@ -122,6 +111,7 @@ const renderCharts = () => {
 };
 
 onMounted(() => {
+  fetchData();
   renderCharts();
   window.addEventListener('resize', updateContainer, false);
   nextTick(() => {
@@ -169,10 +159,10 @@ const onMaterialChange = (value: string[]) => {
 
 // 统一增加8px;
 .dashboard-detail-card {
-  padding: 8px;
+  padding: 12px;
 
   :deep(.t-card__title) {
-    font-size: 20px;
+    font-size: 30px;
     font-weight: 500;
   }
 
@@ -182,12 +172,25 @@ const onMaterialChange = (value: string[]) => {
   }
 }
 
+.dashboard-chart-card{
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 255px;
+}
 .dashboard-list-card {
   display: flex;
   flex-direction: column;
   flex: 1;
-  height: 170px;
+  height: 160px;
   padding: 8px;
+
+  :deep(.t-card__description) {
+    font-size: 18px;
+    color: var(--td-text-color-brand);
+    text-align: left;
+    line-height: 18px;
+  }
 
   :deep(.t-card__header) {
     padding-bottom: 8px;
