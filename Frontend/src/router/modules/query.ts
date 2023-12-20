@@ -12,14 +12,8 @@ export default [
       {
         path: 'topic',
         name: 'QueryTopic',
-        component: () => import('@/pages/dashboard/base/index.vue'),
+        component: () => import('@/pages/detail/base/index.vue'),
         meta: { title: 'Related Topic' },
-      },
-      {
-        path: 'bug',
-        name: 'QueryBug',
-        component: () => import('@/pages/dashboard/base/index.vue'),
-        meta: { title: 'Bug popularity' },
       },
       {
         path: 'rest-api',
