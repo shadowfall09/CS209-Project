@@ -60,41 +60,15 @@
           </div>
         </t-radio-group>
 
-        <div class="setting-group-title">导航布局</div>
-        <t-radio-group v-model="formData.layout">
-          <div v-for="(item, index) in LAYOUT_OPTION" :key="index" class="setting-layout-drawer">
-            <t-radio-button :key="index" :value="item">
-              <thumbnail :src="getThumbnailUrl(item)" />
-            </t-radio-button>
-          </div>
-        </t-radio-group>
-
-        <t-form-item v-show="formData.layout === 'mix'" label="分割菜单（混合模式下有效）" name="splitMenu">
-          <t-switch v-model="formData.splitMenu" />
-        </t-form-item>
-
-        <t-form-item v-show="formData.layout === 'mix'" label="固定 Sidebar" name="isSidebarFixed">
-          <t-switch v-model="formData.isSidebarFixed" />
-        </t-form-item>
-
-        <div class="setting-group-title">元素开关</div>
-        <t-form-item v-show="formData.layout === 'side'" label="显示 Header" name="showHeader">
-          <t-switch v-model="formData.showHeader" />
-        </t-form-item>
-        <t-form-item label="显示 Breadcrumbs" name="showBreadcrumb">
-          <t-switch v-model="formData.showBreadcrumb" />
-        </t-form-item>
-        <t-form-item label="显示 Footer" name="showFooter">
-          <t-switch v-model="formData.showFooter" />
-        </t-form-item>
-        <t-form-item label="使用 多标签Tab页" name="isUseTabsRouter">
-          <t-switch v-model="formData.isUseTabsRouter"></t-switch>
-        </t-form-item>
+<!--        <div class="setting-group-title">导航布局</div>-->
+<!--        <t-radio-group v-model="formData.layout">-->
+<!--          <div v-for="(item, index) in LAYOUT_OPTION" :key="index" class="setting-layout-drawer">-->
+<!--            <t-radio-button :key="index" :value="item">-->
+<!--              <thumbnail :src="getThumbnailUrl(item)" />-->
+<!--            </t-radio-button>-->
+<!--          </div>-->
+<!--        </t-radio-group>-->
       </t-form>
-      <div class="setting-info">
-        <p>请复制后手动修改配置文件: /src/config/style.ts</p>
-        <t-button theme="primary" variant="text" @click="handleCopy"> 复制配置项 </t-button>
-      </div>
     </div>
   </t-drawer>
 </template>
