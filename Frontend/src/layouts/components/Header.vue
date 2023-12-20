@@ -125,7 +125,7 @@ const navToGitHub = () => {
     z-index: 1001;
 
     &-side {
-      left: 232px;
+      left: 243px;
       right: 0;
       z-index: 10;
       width: auto;

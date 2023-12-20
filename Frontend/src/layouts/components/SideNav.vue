@@ -1,6 +1,6 @@
 <template>
   <div :class="sideNavCls">
-    <t-menu :class="menuCls" :theme="theme" :value="active" :collapsed="collapsed" :default-expanded="defaultExpanded">
+    <t-menu :class="menuCls" :theme="theme" :value="active" :collapsed="collapsed" :default-expanded="defaultExpanded" width="fit-content">
       <template #logo>
         <span v-if="showLogo" :class="`${prefix}-side-nav-logo-wrapper`" @click="goHome">
           <component :is="getLogo()" :class="`${prefix}-side-nav-logo-${collapsed ? 't' : 'tdesign'}-logo`" />
@@ -8,7 +8,7 @@
       </template>
       <menu-content :nav-data="menu" />
       <template #operations>
-        <span class="version-container"> {{ !collapsed ? 'TDesign Starter' : '' }} {{ pgk.version }} </span>
+        <span class="version-container" style="text-align: center"> {{ !collapsed ? 'Stackoverflow Application' : '' }} {{ pgk.version }} </span>
       </template>
     </t-menu>
     <div :class="`${prefix}-side-nav-placeholder${collapsed ? '-hidden' : ''}`"></div>
