@@ -11,5 +11,5 @@ export default {
   isUseTabsRouter: false,
   showHeader: true,
   backgroundTheme: 'blueGrey',
-  brandTheme: 'default',
+  brandTheme: 'orange',
 };
