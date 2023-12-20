@@ -27,4 +27,6 @@ public class Tag {
     private Integer averageVoteCount;
 
     private Integer discussionPeopleNumber;
+
+    private Integer comprehensiveScore;
 }

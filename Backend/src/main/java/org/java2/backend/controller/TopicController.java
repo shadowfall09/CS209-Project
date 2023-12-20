@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.java2.backend.common.Result;
 import org.java2.backend.common.TopicPopularityCalculator;
 import org.java2.backend.entity.Tag;
+import org.java2.backend.exception.ServiceException;
 import org.java2.backend.service.IQuestionService;
 import org.java2.backend.service.ITagService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,9 @@ public class TopicController {
 
     @GetMapping("popularity/{limit}")
     public Result popularity(HttpServletResponse response, @PathVariable("limit") Long limit) {
+        if (limit < -1) {
+            throw new ServiceException("400", "Invalid path variable");
+        }
         Stream<String> topicStream = Arrays.stream(topics);
         if (limit != -1) {
             topicStream = topicStream.limit(limit);
@@ -50,49 +54,64 @@ public class TopicController {
         return Result.success(response, getPopularityByTopicName(topic));
     }
 
-    @GetMapping("popularity/{metric}/{limit}")
-    public Result popularitySorted(HttpServletResponse response, @PathVariable("metric") Integer metric, @PathVariable("limit") Long limit) {
-        Stream<String> topicStream = Arrays.stream(topics);
-        if ((limit != -1) && (metric == -1)) {
-            topicStream = topicStream.limit(limit);
+    @GetMapping("popularityAllTopics/{metric}/{limit}")
+    public Result popularityAllTopics(HttpServletResponse response, @PathVariable("metric") Integer metric, @PathVariable("limit") Integer limit) {
+        if ((metric < -1) || (metric > 5) || (limit < -1)) {
+            throw new ServiceException("400", "Invalid path variable");
         }
-        Stream<JSONObject> resultStream = topicStream.map(this::getPopularityByTopicName);
-        if (metric != -1) {
-            AtomicInteger threadNumberSum = new AtomicInteger();
-            AtomicInteger averageViewCountSum = new AtomicInteger();
-            AtomicInteger averageVoteCountSum = new AtomicInteger();
-            resultStream = resultStream.peek(result -> {
-                threadNumberSum.addAndGet(result.getIntValue("threadNumber"));
-                averageViewCountSum.addAndGet(result.getIntValue("averageViewCount"));
-                averageVoteCountSum.addAndGet(result.getIntValue("averageVoteCount"));
-            }).sorted(Comparator.comparing(result -> -switch (metric) {
-                case 0 ->
-                        (int)(result.getIntValue("threadNumber") * (((double) threadNumberSum.get()) / (threadNumberSum.get() + averageViewCountSum.get() + averageVoteCountSum.get())) + result.getIntValue("averageViewCount") * (((double) averageViewCountSum.get()) / (threadNumberSum.get() + averageViewCountSum.get() + averageVoteCountSum.get())) + result.getIntValue("averageVoteCount") * (((double) averageVoteCountSum.get()) / (threadNumberSum.get() + averageViewCountSum.get() + averageVoteCountSum.get())));
-                case 1 -> result.getIntValue("threadNumber");
-                case 2 -> result.getIntValue("averageViewCount");
-                case 3 -> result.getIntValue("averageVoteCount");
-                default -> 0;
-            }));
+        QueryWrapper<Tag> tagQueryWrapper = new QueryWrapper<>();
+        if (limit != -1) {
+            tagQueryWrapper = tagQueryWrapper.last("limit " + limit);
         }
-        if ((metric != -1) && (limit != -1)) {
-            resultStream = resultStream.limit(limit);
+        switch (metric) {
+            case 0: {
+                tagQueryWrapper = tagQueryWrapper.orderByDesc("comprehensive_score");
+                break;
+            }
+            case 1: {
+                tagQueryWrapper = tagQueryWrapper.orderByDesc("thread_number");
+                break;
+            }
+            case 2: {
+                tagQueryWrapper = tagQueryWrapper.orderByDesc("thread_number_2023");
+                break;
+            }
+            case 3: {
+                tagQueryWrapper = tagQueryWrapper.orderByDesc("average_view_count");
+                break;
+            }
+            case 4: {
+                tagQueryWrapper = tagQueryWrapper.orderByDesc("average_vote_count");
+                break;
+            }
+            case 5: {
+                tagQueryWrapper = tagQueryWrapper.orderByDesc("discussion_people_number");
+                break;
+            }
         }
-        List<JSONObject> resultList = resultStream.collect(Collectors.toList());
         JSONObject resultJSONObject = new JSONObject();
-        resultJSONObject.put("popularity", resultList);
+        resultJSONObject.put("popularity", tagService.list(tagQueryWrapper));
         return Result.success(response, resultJSONObject);
     }
 
-    @GetMapping("popularity/calculateMetricsForAlTags")
-    public Result calculateMetricsForAlTags(HttpServletResponse response) {
+    @GetMapping("popularity/calculateMetricsForAllTags")
+    public Result calculateMetricsForAllTags(HttpServletResponse response) {
         int coreNumber = Runtime.getRuntime().availableProcessors();
         int tagNumber = (int) tagService.count();
         int size = tagNumber / coreNumber + 1;
         for (int i = 1; i <= coreNumber; i++) {
-            TopicPopularityCalculator topicPopularityCalculator = new TopicPopularityCalculator(tagService, questionService, i, size);
+            TopicPopularityCalculator topicPopularityCalculator = new TopicPopularityCalculator(tagService, questionService, true, i, size);
             Thread topicPopularityCalculatorThread = new Thread(topicPopularityCalculator);
             topicPopularityCalculatorThread.start();
         }
+        return Result.success(response, "Calculate start");
+    }
+
+    @GetMapping("popularity/calculateComprehensiveScoreForAllTags")
+    public Result calculateComprehensiveScoreForAllTags(HttpServletResponse response) {
+        TopicPopularityCalculator topicPopularityCalculator = new TopicPopularityCalculator(tagService, questionService, false, -1, -1);
+        Thread topicPopularityCalculatorThread = new Thread(topicPopularityCalculator);
+        topicPopularityCalculatorThread.start();
         return Result.success(response, "Calculate start");
     }
 
