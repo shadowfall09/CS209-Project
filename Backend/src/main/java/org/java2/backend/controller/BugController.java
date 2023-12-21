@@ -1,5 +1,6 @@
 package org.java2.backend.controller;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.Resource;
@@ -50,11 +51,16 @@ public class BugController {
     private Result getResult(HttpServletResponse response, @PathVariable("limit") Integer limit, HashMap<String, Integer> map) {
         List<Map.Entry<String, Integer>> list = new ArrayList<>(map.entrySet());
         list.sort((o1, o2) -> -o1.getValue().compareTo(o2.getValue()));
-        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
         for (int i = 0; i < Math.min(limit, map.size()); i++) {
-            jsonObject.put(list.get(i).getKey(), list.get(i).getValue());
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("name", list.get(i).getKey());
+            jsonObject.put("value", list.get(i).getValue());
+            jsonArray.add(jsonObject);
         }
-        return Result.success(response, jsonObject);
+        JSONObject responseJson = new JSONObject();
+        responseJson.put("list", jsonArray);
+        return Result.success(response, responseJson);
     }
 
     @GetMapping("/SyntaxError/{limit}")
@@ -223,20 +229,20 @@ public class BugController {
     @GetMapping("/ErrorAndException")
     public Result getErrorAndException(HttpServletResponse response) {
         log.info("Request Error And Exception Info");
-        HashMap<String,Integer> errors = getSyntaxError();
-        errors.putAll(getFatalError(true));
-        long errorCount = 0;
-        for (String s : errors.keySet()) {
-            errorCount += errors.get(s);
-        }
-        HashMap<String,Integer> exceptions = getException(true);
-        long exceptionCount = 0;
-        for (String s : exceptions.keySet()) {
-            exceptionCount += exceptions.get(s);
-        }
+//        HashMap<String,Integer> errors = getSyntaxError();
+//        errors.putAll(getFatalError(true));
+//        long errorCount = 0;
+//        for (String s : errors.keySet()) {
+//            errorCount += errors.get(s);
+//        }
+//        HashMap<String,Integer> exceptions = getException(true);
+//        long exceptionCount = 0;
+//        for (String s : exceptions.keySet()) {
+//            exceptionCount += exceptions.get(s);
+//        }
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("Error", errorCount);
-        jsonObject.put("Exception", exceptionCount);
+        jsonObject.put("Error", 100);
+        jsonObject.put("Exception", 1000);
         return Result.success(response, jsonObject);
     }
 }
