@@ -9,4 +9,5 @@ export interface TopicInfo {
   averageVoteCount: number;
   discussionPeopleNumber: number;
   comprehensiveScore: number;
+  chosenMetric: number;
 }

@@ -32,7 +32,7 @@ public class TopicController {
     @Resource
     private IQuestionService questionService;
 
-    private final String[] topics = new String[]{"generics", "lambda", "multithreading", "exception", "spring", "stream", "spring", "reflection", "socket", "javafx"};
+    private final String[] topics = new String[]{"generics", "lambda", "multithreading", "exception", "spring", "stream", "junit", "reflection", "socket", "javafx"};
 
     @GetMapping("popularity/{limit}")
     public Result popularity(HttpServletResponse response, @PathVariable("limit") Long limit) {
