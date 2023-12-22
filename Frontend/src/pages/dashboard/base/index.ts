@@ -218,7 +218,7 @@ export function constructTopicPopularityInitDataset({
   const dataset = {
     color: getChartListColor(),
     tooltip: {
-      trigger: 'topic',
+      trigger: 'item',
     },
     xAxis: {
       type: 'category',
