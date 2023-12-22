@@ -181,7 +181,7 @@ export function constructInitDataset({
 }
 
 /** 柱状图数据源 */
-export function constructTopicPopularityInitDataset({
+export function constructTopicPopularityBarChartInitDataset({
   placeholderColor,
   borderColor,
 }: TChartColor, popularity: Array<TopicInfo>, metric: number, sort: boolean) {
@@ -213,6 +213,91 @@ export function constructTopicPopularityInitDataset({
     tempArray.sort((o1, o2) => o2[1] - o1[1]);
     topicArray = tempArray.map(tempTopicInfo => tempTopicInfo[0]);
     scoreArray = tempArray.map(tempTopicInfo => tempTopicInfo[1]);
+  }
+
+  const dataset = {
+    toolbox: {
+      show: true,
+      feature: {
+        mark: {show: true},
+        dataView: {show: false},
+        restore: {show: false},
+        saveAsImage: {show: true}
+      }
+    },
+    color: getChartListColor(),
+    tooltip: {
+      trigger: 'item',
+    },
+    xAxis: {
+      type: 'category',
+      data: topicArray,
+      axisLabel: {
+        color: placeholderColor,
+      },
+      axisLine: {
+        lineStyle: {
+          color: getChartListColor()[1],
+          width: 1,
+        },
+      },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        color: placeholderColor,
+      },
+      splitLine: {
+        lineStyle: {
+          color: borderColor,
+        },
+      },
+    },
+    grid: {
+      top: '5%',
+      left: '50px',
+      right: '35px',
+      bottom: '60px',
+    },
+    series: [
+      {
+        data: scoreArray,
+        type: 'bar',
+        label: {
+          show: true,
+          position: 'top',
+          textStyle: {
+            color: placeholderColor
+          }
+        }
+      }
+    ]
+  };
+
+  return dataset;
+}
+export function constructTopicPopularityRankChartInitDataset({
+  placeholderColor,
+  borderColor,
+}: TChartColor, popularity: Array<TopicInfo>, metric: number) {
+  let topicArray = popularity.map(topicInfo => topicInfo.topic);
+  let scoreArray = popularity.map(topicInfo => topicInfo.comprehensiveScore);
+  switch (metric) {
+    case 1:
+      scoreArray = popularity.map(topicInfo => topicInfo.threadNumber);
+      break;
+    case 2:
+      scoreArray = popularity.map(topicInfo => topicInfo.threadNumber2023);
+      break;
+    case 3:
+      scoreArray = popularity.map(topicInfo => topicInfo.averageViewCount);
+      break;
+    case 4:
+      scoreArray = popularity.map(topicInfo => topicInfo.averageVoteCount);
+      break;
+    case 5:
+      scoreArray = popularity.map(topicInfo => topicInfo.discussionPeopleNumber);
+      break;
   }
 
   const dataset = {
@@ -258,6 +343,97 @@ export function constructTopicPopularityInitDataset({
           show: true,
           position: 'top'
         }
+      }
+    ]
+  };
+
+  return dataset;
+}
+
+export function constructTopicPopularityPercentageChartInitDataset({
+  placeholderColor,
+  borderColor,
+}: TChartColor, popularity: Array<TopicInfo>, metric: number) {
+  let topicArray = popularity.map(topicInfo => topicInfo.topic);
+  let scoreArray = popularity.map(topicInfo => topicInfo.comprehensiveScore);
+  switch (metric) {
+    case 1:
+      scoreArray = popularity.map(topicInfo => topicInfo.threadNumber);
+      break;
+    case 2:
+      scoreArray = popularity.map(topicInfo => topicInfo.threadNumber2023);
+      break;
+    case 3:
+      scoreArray = popularity.map(topicInfo => topicInfo.averageViewCount);
+      break;
+    case 4:
+      scoreArray = popularity.map(topicInfo => topicInfo.averageVoteCount);
+      break;
+    case 5:
+      scoreArray = popularity.map(topicInfo => topicInfo.discussionPeopleNumber);
+      break;
+  }
+  let tempArray: Array<[string, number]> = []
+  for (let i = 0; i < popularity.length; i++) {
+    let tempTopicTuple: [string, number] = [topicArray[i], scoreArray[i]];
+    tempArray.push(tempTopicTuple);
+  }
+  tempArray.sort((o1, o2) => o2[1] - o1[1]);
+  topicArray = tempArray.map(tempTopicInfo => tempTopicInfo[0]);
+  scoreArray = tempArray.map(tempTopicInfo => tempTopicInfo[1]);
+  const mergedData = topicArray.map((topic, index) => {
+    return {
+      name: topic,
+      value: scoreArray[index]
+    };
+  });
+
+  const dataset = {
+    tooltip: {
+      trigger: 'item',
+      formatter: function(params) {
+        return params.marker + ' ' + params.name + '&nbsp&nbsp&nbsp&nbsp&nbsp<strong>' + params.data.value + ' (' + params.percent + '%)</strong>';
+      }
+    },
+    legend: {
+      top: 'bottom',
+      textStyle: {
+        color: placeholderColor
+      }
+    },
+    toolbox: {
+      show: true,
+      feature: {
+        mark: { show: true },
+        dataView: { show: false },
+        restore: { show: true },
+        saveAsImage: { show: true }
+      }
+    },
+    grid: {
+      top: '5%',
+      left: '50px',
+      right: 0,
+      bottom: '60px',
+    },
+    series: [
+      {
+        name: 'Percentage',
+        type: 'pie',
+        label: {
+          show: true,
+          formatter: '{b}: {d}%',
+          textStyle: {
+            color: placeholderColor
+          }
+        },
+        radius: ['5%', '75%'],
+        center: ['50%', '40%'],
+        roseType: 'area',
+        itemStyle: {
+          borderRadius: 8
+        },
+        data: mergedData
       }
     ]
   };
