@@ -223,7 +223,7 @@ export function constructTopicPopularityBarChartInitDataset({
         mark: {show: true},
         dataView: {show: false},
         restore: {show: false},
-        saveAsImage: {show: false}
+        saveAsImage: {show: true}
       }
     },
     color: getChartListColor(),
@@ -257,7 +257,7 @@ export function constructTopicPopularityBarChartInitDataset({
     grid: {
       top: '5%',
       left: '50px',
-      right: 0,
+      right: '35px',
       bottom: '60px',
     },
     series: [
@@ -419,7 +419,7 @@ export function constructTopicPopularityPercentageChartInitDataset({
         mark: { show: true },
         dataView: { show: false },
         restore: { show: true },
-        saveAsImage: { show: false }
+        saveAsImage: { show: true }
       }
     },
     series: [
