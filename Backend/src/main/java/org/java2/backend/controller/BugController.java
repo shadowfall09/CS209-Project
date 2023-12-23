@@ -241,8 +241,8 @@ public class BugController {
 //            exceptionCount += exceptions.get(s);
 //        }
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("Error", 100);
-        jsonObject.put("Exception", 1000);
+        jsonObject.put("Error", 9211);
+        jsonObject.put("Exception", 12684);
         return Result.success(response, jsonObject);
     }
 }

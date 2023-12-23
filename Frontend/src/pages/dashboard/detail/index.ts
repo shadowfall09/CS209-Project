@@ -1,129 +1,19 @@
-import dayjs from 'dayjs';
-import { TChartColor } from '@/config/color';
-import { getChartListColor } from '@/utils/color';
-import { getRandomArray, getDateArray } from '@/utils/charts';
-
-/**
- * 散点图数据
- *
- * @export
- * @returns {}
- */
-export function getScatterDataSet({
-  dateTime = [],
-  placeholderColor,
-  borderColor,
-}: { dateTime?: Array<string> } & TChartColor) {
-  const divideNum = 40;
-  const timeArray = [];
-  const inArray = [];
-  const outArray = [];
-  for (let i = 0; i < divideNum; i++) {
-    // const [timeArray, inArray, outArray] = dataset;
-    if (dateTime.length > 0) {
-      const dateAbsTime: number = (new Date(dateTime[1]).getTime() - new Date(dateTime[0]).getTime()) / divideNum;
-      const endTime: number = new Date(dateTime[0]).getTime() + dateAbsTime * i;
-      timeArray.push(dayjs(endTime).format('MM-DD'));
-    } else {
-      timeArray.push(
-        dayjs()
-          .subtract(divideNum - i, 'day')
-          .format('MM-DD'),
-      );
-    }
-
-    inArray.push(getRandomArray().toString());
-    outArray.push(getRandomArray().toString());
-  }
-
-  return {
-    color: getChartListColor(),
-    xAxis: {
-      data: timeArray,
-      axisLabel: {
-        color: placeholderColor,
-      },
-      splitLine: { show: false },
-      axisLine: {
-        lineStyle: {
-          color: borderColor,
-          width: 1,
-        },
-      },
-    },
-    yAxis: {
-      type: 'value',
-      // splitLine: { show: false},
-      axisLabel: {
-        color: placeholderColor,
-      },
-      nameTextStyle: {
-        padding: [0, 0, 0, 60],
-      },
-      axisTick: {
-        show: false,
-        axisLine: {
-          show: false,
-        },
-      },
-      axisLine: {
-        show: false,
-      },
-      splitLine: {
-        lineStyle: {
-          color: borderColor,
-        },
-      },
-    },
-    tooltip: {
-      trigger: 'item',
-    },
-    grid: {
-      top: '5px',
-      left: '25px',
-      right: '5px',
-      bottom: '60px',
-    },
-    legend: {
-      left: 'center',
-      bottom: '0',
-      orient: 'horizontal', // legend 横向布局。
-      data: ['按摩仪', '咖啡机'],
-      itemHeight: 8,
-      itemWidth: 8,
-      textStyle: {
-        fontSize: 12,
-        color: placeholderColor,
-      },
-    },
-    series: [
-      {
-        name: '按摩仪',
-        symbolSize: 10,
-        data: outArray.reverse(),
-        type: 'scatter',
-      },
-      {
-        name: '咖啡机',
-        symbolSize: 10,
-        data: inArray.concat(inArray.reverse()),
-        type: 'scatter',
-      },
-    ],
-  };
-}
+import {TChartColor} from '@/config/color';
+import {getChartListColor} from '@/utils/color';
 
 /** 折线图数据 */
 export function getFolderLineDataSet({
-  dateTime = [],
-  placeholderColor,
-  borderColor,
-}: { dateTime?: Array<string> } & TChartColor) {
-  let dateArray: Array<string> = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-  if (dateTime.length > 0) {
-    const divideNum = 7;
-    dateArray = getDateArray(dateTime, divideNum);
-  }
+                                       placeholderColor,
+                                       borderColor,
+                                       syntaxErrorData = [],
+                                       fatalErrorData = [],
+                                       exceptionData = [],
+                                     }: {
+  syntaxErrorData?: Array<{ value: number, name: string }>,
+  fatalErrorData?: Array<{ value: number, name: string }>,
+  exceptionData?: Array<{ value: number, name: string }>
+} & TChartColor) {
+  let topArray: Array<string> = ['Top1', 'Top2', 'Top3', 'Top4', 'Top5', 'Top6', 'Top7'];
   return {
     color: getChartListColor(),
     grid: {
@@ -136,15 +26,15 @@ export function getFolderLineDataSet({
       left: 'center',
       bottom: '0',
       orient: 'horizontal', // legend 横向布局。
-      data: ['杯子', '茶叶', '蜂蜜', '面粉'],
+      data: ['Exception', 'Fatal Error', 'Syntax Error'],
       textStyle: {
-        fontSize: 12,
+        fontSize: 14,
         color: placeholderColor,
       },
     },
     xAxis: {
       type: 'category',
-      data: dateArray,
+      data: topArray,
       boundaryGap: false,
       axisLabel: {
         color: placeholderColor,
@@ -169,23 +59,18 @@ export function getFolderLineDataSet({
     },
     tooltip: {
       trigger: 'item',
+      formatter: function (params) {
+        return params.seriesName + '<br/>' + params.data.name + ': ' + params.data.value;
+      },
     },
     series: [
       {
         showSymbol: true,
         symbol: 'circle',
         symbolSize: 8,
-        name: '杯子',
-        stack: '总量',
-        data: [
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-        ],
+        name: 'Syntax Error',
+        stack: 'Popularity',
+        data: syntaxErrorData,
         type: 'line',
         itemStyle: {
           borderColor,
@@ -196,17 +81,9 @@ export function getFolderLineDataSet({
         showSymbol: true,
         symbol: 'circle',
         symbolSize: 8,
-        name: '茶叶',
-        stack: '总量',
-        data: [
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-        ],
+        name: 'Fatal Error',
+        stack: 'Popularity',
+        data: fatalErrorData,
         type: 'line',
         itemStyle: {
           borderColor,
@@ -217,43 +94,117 @@ export function getFolderLineDataSet({
         showSymbol: true,
         symbol: 'circle',
         symbolSize: 8,
-        name: '蜂蜜',
-        stack: '总量',
-        data: [
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-        ],
+        name: 'Exception',
+        stack: 'Popularity',
+        data: exceptionData,
         type: 'line',
         itemStyle: {
           borderColor,
           borderWidth: 1,
         },
       },
+    ],
+  };
+}
+
+/**
+ * 获取饼图数据
+ *
+ * @export
+ * @returns {*}
+ */
+interface PieChartDataSetParams {
+  textColor: string;
+  placeholderColor: string;
+  containerColor: string;
+  data: { value: number; name: string }[];
+  name: string;
+}
+export function getPieChartDataSet({
+                                     textColor,
+                                     placeholderColor,
+                                     containerColor,
+                                     data = [],
+                                     name,
+                                   }: PieChartDataSetParams) {
+  return {
+    color: getChartListColor(),
+    tooltip: {
+      show: false,
+      trigger: 'axis',
+      position: null,
+    },
+    grid: {
+      top: '0',
+      right: '0',
+    },
+    legend: {
+      selectedMode: false,
+      itemWidth: 12,
+      itemHeight: 4,
+      textStyle: {
+        fontSize: 14,
+        color: placeholderColor,
+      },
+      left: 'center',
+      bottom: '15%',
+      orient: 'horizontal', // legend 横向布局。
+    },
+    series: [
       {
-        showSymbol: true,
-        symbol: 'circle',
-        symbolSize: 8,
-        name: '面粉',
-        stack: '总量',
-        data: [
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-          getRandomArray(),
-        ],
-        type: 'line',
+        name: name,
+        type: 'pie',
+        radius: ['50%', '65%'],
+        center: ['50%', '37%'],
+        avoidLabelOverlap: true,
+        selectedMode: true,
+        silent: true,
         itemStyle: {
-          borderColor,
+          borderColor: containerColor,
           borderWidth: 1,
         },
+        label: {
+          show: true,
+          position: 'center',
+          formatter: ['{value|{d}%}', '{name|{b}}'].join('\n'),
+          rich: {
+            value: {
+              color: textColor,
+              fontSize: 28,
+              fontWeight: 'normal',
+              lineHeight: 46,
+            },
+            name: {
+              color: placeholderColor,
+              fontSize: 16,
+              lineHeight: 14,
+            },
+          },
+        },
+        emphasis: {
+          scale: true,
+          label: {
+            show: true,
+            formatter: ['{value|{d}%}', '{name|{b}}'].join('\n'),
+            rich: {
+              value: {
+                color: textColor,
+                fontSize: 28,
+                fontWeight: 'normal',
+                lineHeight: 46,
+              },
+              name: {
+                color: '#909399',
+                fontSize: 14,
+                lineHeight: 14,
+              },
+            },
+          },
+        },
+        labelLine: {
+          show: false,
+        },
+        data: data,
       },
     ],
   };
