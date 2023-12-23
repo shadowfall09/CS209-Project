@@ -63,6 +63,11 @@ export function getFolderLineDataSet({
         return params.seriesName + '<br/>' + params.data.name + ': ' + params.data.value;
       },
     },
+    toolbox: {
+      feature: {
+        saveAsImage: {}
+      }
+    },
     series: [
       {
         showSymbol: true,
@@ -72,6 +77,10 @@ export function getFolderLineDataSet({
         stack: 'Popularity',
         data: syntaxErrorData,
         type: 'line',
+        areaStyle: {},
+        emphasis: {
+          focus: 'series'
+        },
         itemStyle: {
           borderColor,
           borderWidth: 1,
@@ -85,6 +94,10 @@ export function getFolderLineDataSet({
         stack: 'Popularity',
         data: fatalErrorData,
         type: 'line',
+        areaStyle: {},
+        emphasis: {
+          focus: 'series'
+        },
         itemStyle: {
           borderColor,
           borderWidth: 1,
@@ -98,6 +111,10 @@ export function getFolderLineDataSet({
         stack: 'Popularity',
         data: exceptionData,
         type: 'line',
+        areaStyle: {},
+        emphasis: {
+          focus: 'series'
+        },
         itemStyle: {
           borderColor,
           borderWidth: 1,
@@ -137,6 +154,11 @@ export function getPieChartDataSet({
     grid: {
       top: '0',
       right: '0',
+    },
+    toolbox: {
+      feature: {
+        saveAsImage: {}
+      }
     },
     legend: {
       selectedMode: false,
