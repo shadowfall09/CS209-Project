@@ -39,7 +39,9 @@
         </t-card>
       </t-col>
     </t-row>
+    <t-card title="Treemap & SunBurst" :class="['row-margin','dashboard-detail-card']">
 
+    </t-card>
   </div>
 </template>
 
