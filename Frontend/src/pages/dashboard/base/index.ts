@@ -3,6 +3,7 @@ import { TChartColor } from '@/config/color';
 import { getChartListColor } from '@/utils/color';
 import { getRandomArray } from '@/utils/charts';
 import {TopicInfo, TopicListResult} from "@/api/model/topicModel";
+import {TdBaseTableProps} from "tdesign-vue-next";
 
 /** 首页 dashboard 折线图 */
 export function constructInitDashboardDataset(type: string) {
@@ -222,85 +223,9 @@ export function constructTopicPopularityBarChartInitDataset({
         mark: {show: true},
         dataView: {show: false},
         restore: {show: false},
-        saveAsImage: {show: true}
+        saveAsImage: {show: false}
       }
     },
-    color: getChartListColor(),
-    tooltip: {
-      trigger: 'item',
-    },
-    xAxis: {
-      type: 'category',
-      data: topicArray,
-      axisLabel: {
-        color: placeholderColor,
-      },
-      axisLine: {
-        lineStyle: {
-          color: getChartListColor()[1],
-          width: 1,
-        },
-      },
-    },
-    yAxis: {
-      type: 'value',
-      axisLabel: {
-        color: placeholderColor,
-      },
-      splitLine: {
-        lineStyle: {
-          color: borderColor,
-        },
-      },
-    },
-    grid: {
-      top: '5%',
-      left: '50px',
-      right: '35px',
-      bottom: '60px',
-    },
-    series: [
-      {
-        data: scoreArray,
-        type: 'bar',
-        label: {
-          show: true,
-          position: 'top',
-          textStyle: {
-            color: placeholderColor
-          }
-        }
-      }
-    ]
-  };
-
-  return dataset;
-}
-export function constructTopicPopularityRankChartInitDataset({
-  placeholderColor,
-  borderColor,
-}: TChartColor, popularity: Array<TopicInfo>, metric: number) {
-  let topicArray = popularity.map(topicInfo => topicInfo.topic);
-  let scoreArray = popularity.map(topicInfo => topicInfo.comprehensiveScore);
-  switch (metric) {
-    case 1:
-      scoreArray = popularity.map(topicInfo => topicInfo.threadNumber);
-      break;
-    case 2:
-      scoreArray = popularity.map(topicInfo => topicInfo.threadNumber2023);
-      break;
-    case 3:
-      scoreArray = popularity.map(topicInfo => topicInfo.averageViewCount);
-      break;
-    case 4:
-      scoreArray = popularity.map(topicInfo => topicInfo.averageVoteCount);
-      break;
-    case 5:
-      scoreArray = popularity.map(topicInfo => topicInfo.discussionPeopleNumber);
-      break;
-  }
-
-  const dataset = {
     color: getChartListColor(),
     tooltip: {
       trigger: 'item',
@@ -341,13 +266,99 @@ export function constructTopicPopularityRankChartInitDataset({
         type: 'bar',
         label: {
           show: true,
-          position: 'top'
+          position: 'top',
+          textStyle: {
+            color: placeholderColor
+          }
         }
       }
     ]
   };
 
   return dataset;
+}
+
+export interface TopicData {
+  rank: number;
+  topic: string;
+  count: number;
+  percentage: string;
+}
+
+export function constructTopicPopularityRankChartInitDataset({
+  placeholderColor,
+  borderColor,
+}: TChartColor, popularity: Array<TopicInfo>, metric: number) {
+  let topicArray = popularity.map(topicInfo => topicInfo.topic);
+  let scoreArray = popularity.map(topicInfo => topicInfo.comprehensiveScore);
+  switch (metric) {
+    case 1:
+      scoreArray = popularity.map(topicInfo => topicInfo.threadNumber);
+      break;
+    case 2:
+      scoreArray = popularity.map(topicInfo => topicInfo.threadNumber2023);
+      break;
+    case 3:
+      scoreArray = popularity.map(topicInfo => topicInfo.averageViewCount);
+      break;
+    case 4:
+      scoreArray = popularity.map(topicInfo => topicInfo.averageVoteCount);
+      break;
+    case 5:
+      scoreArray = popularity.map(topicInfo => topicInfo.discussionPeopleNumber);
+      break;
+  }
+  let tempArray: Array<[string, number]> = []
+  for (let i = 0; i < popularity.length; i++) {
+    let tempTopicTuple: [string, number] = [topicArray[i], scoreArray[i]];
+    tempArray.push(tempTopicTuple);
+  }
+  tempArray.sort((o1, o2) => o2[1] - o1[1]);
+  topicArray = tempArray.map(tempTopicInfo => tempTopicInfo[0]);
+  scoreArray = tempArray.map(tempTopicInfo => tempTopicInfo[1]);
+  let sum = scoreArray.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+  const RANK_COLUMNS: TdBaseTableProps['columns'] = [
+    {
+      align: 'center',
+      colKey: 'rank',
+      title: 'Rank',
+      width: 70,
+      fixed: 'left',
+    },
+    {
+      align: 'left',
+      colKey: 'topic',
+      title: 'Topic',
+      width: 100,
+    },
+    {
+      align: 'center',
+      colKey: 'count',
+      title: 'Count',
+      width: 80,
+    },
+    {
+      align: 'center',
+      colKey: 'percentage',
+      width: 110,
+      title: 'Percentage',
+    }
+  ];
+
+  let TOPIC_DATA_LIST: Array<TopicData> = topicArray.map((topic, index) => {
+    return {
+      rank: index + 1,
+      topic: topic,
+      count: scoreArray[index],
+      percentage: ((scoreArray[index] / sum) * 100).toFixed(2) + "%"
+    }
+  })
+
+  return {
+    columnTitle: RANK_COLUMNS,
+    data: TOPIC_DATA_LIST
+  };
 }
 
 export function constructTopicPopularityPercentageChartInitDataset({
@@ -408,7 +419,7 @@ export function constructTopicPopularityPercentageChartInitDataset({
         mark: { show: true },
         dataView: { show: false },
         restore: { show: true },
-        saveAsImage: { show: true }
+        saveAsImage: { show: false }
       }
     },
     series: [
@@ -418,6 +429,8 @@ export function constructTopicPopularityPercentageChartInitDataset({
         label: {
           show: true,
           formatter: '{b}: {d}%',
+          lineHeight: 13,
+          overflow: 'break',
           textStyle: {
             color: placeholderColor
           }

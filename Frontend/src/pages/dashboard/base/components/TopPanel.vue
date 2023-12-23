@@ -51,18 +51,23 @@
             </t-space>
           </template>
           <div
-            id="topicPopularityRankChartContainer"
-            ref="topicPopularityRankChartContainer"
             style="width: 100%; height: 351px; display: flex; align-items: center; justify-content: center;"
           >
-            <t-alert v-if="isLoadingFailed" theme="error"
-                     @close="handleLoadingFailedAlertClose">
-              <template #close>
-                <font-awesome-icon :icon="['fas', 'rotate-right']" />
-              </template>
-              Loading Failed
-            </t-alert>
+            <t-space v-if="!isLoading" align="center">
+              <t-table :data="TOPIC_DATA_LIST.slice(0, 5)" :columns="RANK_COLUMNS" row-key="topicData">
+              </t-table>
+              <t-divider layout="vertical" :style="{ height: '300px' }"/>
+              <t-table :data="TOPIC_DATA_LIST.slice(5, 10)" :columns="RANK_COLUMNS" row-key="topicData">
+              </t-table>
+            </t-space>
           </div>
+          <t-alert v-if="isLoadingFailed" theme="error"
+                   @close="handleLoadingFailedAlertClose">
+            <template #close>
+              <font-awesome-icon :icon="['fas', 'rotate-right']" />
+            </template>
+            Loading Failed
+          </t-alert>
         </t-card>
       </t-col>
       <t-col :xs="12" :xl="5">
@@ -99,7 +104,7 @@
   </t-space>
 </template>
 <script setup lang="ts">
-import {MessagePlugin} from 'tdesign-vue-next';
+import {MessagePlugin, TdBaseTableProps} from 'tdesign-vue-next';
 import { onMounted, watch, ref, onUnmounted, nextTick, computed } from 'vue';
 
 import * as echarts from 'echarts/core';
@@ -112,12 +117,17 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { useSettingStore } from '@/store';
 import { LAST_7_DAYS } from '@/utils/date';
 import { changeChartsTheme } from '@/utils/color';
-import {constructInitDataset, constructTopicPopularityPercentageChartInitDataset} from "@/pages/dashboard/base/index";
+import {
+  constructInitDataset,
+  constructTopicPopularityPercentageChartInitDataset, constructTopicPopularityRankChartInitDataset,
+  TopicData
+} from "@/pages/dashboard/base/index";
 import {constructTopicPopularityBarChartInitDataset} from "@/pages/dashboard/base/index";
 
 import Trend from '@/components/trend/index.vue';
 import {getTopicList} from "@/api/topic";
 import { SVGRenderer } from 'echarts/renderers';
+import {SALE_COLUMNS, SALE_TEND_LIST} from "@/pages/dashboard/base/constants";
 
 echarts.use([ToolboxComponent, TooltipComponent, LegendComponent, GridComponent, LineChart, BarChart, PieChart, CanvasRenderer, SVGRenderer, LabelLayout]);
 
@@ -145,6 +155,9 @@ let metricBarChart: number = 0;
 let metricRankChart: number = 0;
 let metricPercentageChart: number = 0;
 let sort: boolean = false;
+
+let RANK_COLUMNS = ref([]);
+let TOPIC_DATA_LIST = ref([]);
 
 const handleSelectionChange = (value: string, context: { trigger: string; }) => {
   if (context.trigger === 'check') {
@@ -175,6 +188,32 @@ const handleSelectionChange = (value: string, context: { trigger: string; }) => 
 
       renderTopicPopularityBarChart(metricBarChart, sort);
     }
+  }
+};
+
+const handleSelectionChangeRank = (value: string, context: { trigger: string; }) => {
+  if (context.trigger === 'check') {
+    switch (value) {
+      case "comprehensiveScore":
+        metricRankChart = 0;
+        break;
+      case "threadNumber":
+        metricRankChart = 1;
+        break;
+      case "threadNumber2023":
+        metricRankChart = 2;
+        break;
+      case "averageViewCount":
+        metricRankChart = 3;
+        break;
+      case "averageVoteCount":
+        metricRankChart = 4;
+        break;
+      case "discussionPeopleNumber":
+        metricRankChart = 5;
+        break;
+    }
+    renderTopicPopularityRankChart(metricRankChart);
   }
 };
 
@@ -213,6 +252,7 @@ const handleSelectionChangePercentage = (value: string, context: { trigger: stri
 const handleLoadingFailedAlertClose = () => {
   fetchData().then(() => {
     renderTopicPopularityBarChart(metricBarChart, sort);
+    renderTopicPopularityRankChart(metricRankChart);
     renderTopicPopularityPercentageChart(metricPercentageChart);
     nextTick(() => {
       updateContainer();
@@ -259,16 +299,10 @@ const renderTopicPopularityBarChart = (metric: number, sort: boolean) => {
   }
 };
 
-const renderTopicPopularityRankChart = (metric: number, sort: boolean) => {
-  if (!topicPopularityBarChartContainer) {
-    topicPopularityBarChartContainer = document.getElementById('topicPopularityBarChartContainer');
-  }
-  if (popularityData !== undefined) {
-    topicPopularityBarChart = echarts.init(topicPopularityBarChartContainer, null, {
-      renderer: 'svg'
-    });
-    topicPopularityBarChart.setOption(constructTopicPopularityBarChartInitDataset({ ...chartColors.value }, popularityData, metric, sort));
-  }
+const renderTopicPopularityRankChart = (metric: number) => {
+  let dataset = constructTopicPopularityRankChartInitDataset({ ...chartColors.value }, popularityData, metric);
+  RANK_COLUMNS.value = dataset.columnTitle;
+  TOPIC_DATA_LIST.value = dataset.data;
 };
 
 const renderTopicPopularityPercentageChart = (metric: number) => {
@@ -285,6 +319,7 @@ const renderTopicPopularityPercentageChart = (metric: number) => {
 
 const renderCharts = (metric: number, sort: boolean) => {
   renderTopicPopularityBarChart(metric, sort);
+  renderTopicPopularityRankChart(metric);
   renderTopicPopularityPercentageChart(metric);
 };
 
