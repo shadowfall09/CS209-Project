@@ -11,7 +11,7 @@ export default [
     children: [
       {
         path: 'base',
-        name: 'DashboardBase',
+        name: 'TopicPopularity',
         component: () => import('@/pages/dashboard/base/index.vue'),
         meta: { title: 'Topic Popularity' },
       },
