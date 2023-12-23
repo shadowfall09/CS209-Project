@@ -396,6 +396,7 @@ export function constructTopicPopularityPercentageChartInitDataset({
       }
     },
     legend: {
+      left: 'center',
       top: 'bottom',
       textStyle: {
         color: placeholderColor
@@ -409,12 +410,6 @@ export function constructTopicPopularityPercentageChartInitDataset({
         restore: { show: true },
         saveAsImage: { show: true }
       }
-    },
-    grid: {
-      top: '5%',
-      left: '50px',
-      right: 0,
-      bottom: '60px',
     },
     series: [
       {
