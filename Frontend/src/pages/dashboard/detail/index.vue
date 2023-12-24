@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-panel-detail">
     <t-card title="Exception VS Error Popularity"
-            hover-shadow="true"
+            hover-shadow
             class="dashboard-detail-card">
       <t-row :gutter="[16, 16]">
         <t-col v-for="(item, index) in paneListData" :key="index" :xs="6" :xl="3">
@@ -18,21 +18,21 @@
     </t-card>
     <t-row :gutter="[16, 16]" class="row-margin">
       <t-col :xs="12" :xl="9">
-        <t-card class="dashboard-detail-card" hover-shadow="true" title="Top Bug Popularity" :loading="is_loading">
+        <t-card class="dashboard-detail-card" hover-shadow title="Top Bug Popularity" :loading="is_loading">
           <div id="lineContainer"
                :style="{ width: `100%`, height: `${resizeTime * 580}px`, margin: '0 auto' }"
           />
         </t-card>
       </t-col>
       <t-col :xs="12" :xl="3">
-        <t-card title="Error VS Exception" hover-shadow="true" class="dashboard-chart-card" :loading="is_loading">
+        <t-card title="Error VS Exception" hover-shadow class="dashboard-chart-card" :loading="is_loading">
           <div
             id="EEContainer"
             ref="EEContainer"
             :style="{ width: `${resizeTime * 326}px`, height: `${resizeTime * 300}px`, margin: '0 auto' }"
           />
         </t-card>
-        <t-card title="Syntax Error VS Fatal Error" hover-shadow="true" subtitle="Top 7"
+        <t-card title="Syntax Error VS Fatal Error" hover-shadow subtitle="Top 7"
                 :class="['row-margin','dashboard-chart-card']" :loading="is_loading">
           <div
             id="SFEContainer"
@@ -42,7 +42,7 @@
         </t-card>
       </t-col>
     </t-row>
-    <t-card title="Treemap & SunBurst" hover-shadow="true" :class="['row-margin','dashboard-detail-card']"
+    <t-card title="Treemap & SunBurst" hover-shadow :class="['row-margin','dashboard-detail-card']"
             :loading="is_loading">
       <div
         id="TSContainer"
@@ -50,11 +50,11 @@
         :style="{ width: `100%`, height: `${resizeTime * 580}px`, margin: '0 auto' }"
       />
     </t-card>
-    <t-card title="Category Comparison" hover-shadow="true" :class="['row-margin','dashboard-detail-card']"
+    <t-card title="Category Comparison" hover-shadow :class="['row-margin','dashboard-detail-card']"
             :loading="is_loading">
       <template #actions>
         <t-space align="center">
-          <t-select autoWidth="true" showArrow="true" defaultValue="Exception" :disabled="is_loading"
+          <t-select autoWidth showArrow defaultValue="Exception" :disabled="is_loading"
                     @change="handleSelectionChange">
             <t-option key="Exception" label="Exception" value="Exception"/>
             <t-option key="FatalError" label="Fatal Error" value="FatalError"/>
@@ -88,8 +88,8 @@ export default {
 <script setup lang="ts">
 import {reactive, nextTick, ref, onMounted, onUnmounted, watch, computed, onDeactivated} from 'vue';
 import * as echarts from 'echarts/core';
-import {GridComponent, TooltipComponent, LegendComponent} from 'echarts/components';
-import {LineChart, PieChart, SunburstChart, TreemapChart} from 'echarts/charts';
+import {GridComponent, TooltipComponent, LegendComponent,ToolboxComponent} from 'echarts/components';
+import {BarChart,LineChart, PieChart, SunburstChart, TreemapChart} from 'echarts/charts';
 import {CanvasRenderer} from 'echarts/renderers';
 import {getFolderLineDataSet, getPieChartDataSet, constructTopicPopularityBarChartInitDataset} from './index';
 import {PANE_LIST_DATA} from './constants';
@@ -99,7 +99,7 @@ import * as bugApi from '@/api/bug';
 import {UniversalTransition} from 'echarts/features';
 
 
-echarts.use([GridComponent, LegendComponent, TooltipComponent, LineChart, PieChart, TreemapChart, UniversalTransition, SunburstChart, CanvasRenderer]);
+echarts.use([BarChart,ToolboxComponent,GridComponent, LegendComponent, TooltipComponent, LineChart, PieChart, TreemapChart, UniversalTransition, SunburstChart, CanvasRenderer]);
 let is_loading = ref(true);
 const store = useSettingStore();
 const chartColors = computed(() => store.chartColors);
