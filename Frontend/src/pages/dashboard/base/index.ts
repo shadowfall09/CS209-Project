@@ -267,9 +267,7 @@ export function constructTopicPopularityBarChartInitDataset({
         label: {
           show: true,
           position: 'top',
-          textStyle: {
-            color: placeholderColor
-          }
+          color: placeholderColor
         }
       }
     ]
@@ -430,9 +428,7 @@ export function constructTopicPopularityPercentageChartInitDataset({
           formatter: '{b}: {d}%',
           lineHeight: 13,
           overflow: 'break',
-          textStyle: {
-            color: placeholderColor
-          }
+          color: placeholderColor
         },
         radius: ['5%', '75%'],
         center: ['50%', '40%'],
