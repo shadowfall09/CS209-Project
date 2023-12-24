@@ -16,6 +16,9 @@
               </t-select>
               <t-switch size="large" :label="['&nbsp;&nbsp;Sorted&nbsp;&nbsp;', 'Unsorted']"
                         @change="handleSwitchChange"></t-switch>
+              <t-button shape="circle" theme="primary" @click="refresh">
+                <template #icon> <font-awesome-icon :icon="['fas', 'rotate-right']" /></template>
+              </t-button>
             </t-space>
           </template>
           <div
@@ -24,7 +27,7 @@
             style="width: 100%; height: 351px; display: flex; align-items: center; justify-content: center;"
           >
             <t-alert v-if="isLoadingFailed" theme="error"
-                     @close="handleLoadingFailedAlertClose">
+                     @close="refresh">
               <template #close>
                 <font-awesome-icon :icon="['fas', 'rotate-right']" />
               </template>
@@ -48,10 +51,13 @@
                 <t-option key="averageVoteCount" label="Average Vote Count" value="averageVoteCount"/>
                 <t-option key="discussionPeopleNumber" label="Discussion People Number" value="discussionPeopleNumber"/>
               </t-select>
+              <t-button shape="circle" theme="primary" @click="refresh">
+                <template #icon> <font-awesome-icon :icon="['fas', 'rotate-right']" /></template>
+              </t-button>
             </t-space>
           </template>
           <div
-            style="width: 100%; height: 351px; display: flex; align-items: center; justify-content: center;"
+            style="overflow: auto; width: 100%; height: 351px; display: flex; align-items: center; justify-content: left;"
           >
             <t-space v-if="(!isLoading)&&(!isLoadingFailed)" align="center">
               <t-table :data="TOPIC_DATA_LIST.slice(0, 5)" :columns="RANK_COLUMNS" row-key="topicData">
@@ -61,7 +67,7 @@
               </t-table>
             </t-space>
             <t-alert v-if="isLoadingFailed" theme="error"
-                     @close="handleLoadingFailedAlertClose">
+                     @close="refresh">
               <template #close>
                 <font-awesome-icon :icon="['fas', 'rotate-right']" />
               </template>
@@ -83,6 +89,9 @@
                 <t-option key="averageVoteCount" label="Average Vote Count" value="averageVoteCount"/>
                 <t-option key="discussionPeopleNumber" label="Discussion People Number" value="discussionPeopleNumber"/>
               </t-select>
+              <t-button shape="circle" theme="primary" @click="refresh">
+                <template #icon> <font-awesome-icon :icon="['fas', 'rotate-right']" /></template>
+              </t-button>
             </t-space>
           </template>
           <div
@@ -91,7 +100,7 @@
             style="width: 100%; height: 351px; display: flex; align-items: center; justify-content: center;"
           >
             <t-alert v-if="isLoadingFailed" theme="error"
-                     @close="handleLoadingFailedAlertClose">
+                     @close="refresh">
               <template #close>
                 <font-awesome-icon :icon="['fas', 'rotate-right']" />
               </template>
@@ -254,7 +263,7 @@ const handleSelectionChangePercentage = (value: string, context: { trigger: stri
   }
 };
 
-const handleLoadingFailedAlertClose = () => {
+const refresh = () => {
   fetchData().then(() => {
     renderTopicPopularityBarChart(metricBarChart, sort);
     renderTopicPopularityRankChart(metricRankChart);
@@ -279,9 +288,12 @@ const fetchData = async () => {
   isLoading.value = true;
   isLoadingFailed= false;
   await nextTick();
+  popularityData = undefined;
+  sessionStorage.removeItem("popularityData");
   try {
     const { popularity } = await getTopicList(-1);
     popularityData = popularity;
+    sessionStorage.setItem("popularityData", JSON.stringify(popularity));
   } catch (e) {
     console.log(e);
     isLoadingFailed = true;
@@ -305,9 +317,11 @@ const renderTopicPopularityBarChart = (metric: number, sort: boolean) => {
 };
 
 const renderTopicPopularityRankChart = (metric: number) => {
-  let dataset = constructTopicPopularityRankChartInitDataset({ ...chartColors.value }, popularityData, metric);
-  RANK_COLUMNS.value = dataset.columnTitle;
-  TOPIC_DATA_LIST.value = dataset.data;
+  if (popularityData !== undefined) {
+    let dataset = constructTopicPopularityRankChartInitDataset({ ...chartColors.value }, popularityData, metric);
+    RANK_COLUMNS.value = dataset.columnTitle;
+    TOPIC_DATA_LIST.value = dataset.data;
+  }
 };
 
 const renderTopicPopularityPercentageChart = (metric: number) => {
@@ -352,13 +366,26 @@ const updateContainer = () => {
 };
 
 onMounted(() => {
-  fetchData().then(() => {
+  let popularityDataString = sessionStorage.getItem("popularityData");
+  if (popularityDataString !== null) {
+    popularityData = JSON.parse(popularityDataString);
+  }
+  if (popularityData === undefined) {
+    fetchData().then(() => {
+      renderCharts(0, sort);
+      nextTick(() => {
+        updateContainer();
+      });
+      window.addEventListener('resize', updateContainer, false);
+    })
+  }
+  else {
     renderCharts(0, sort);
     nextTick(() => {
       updateContainer();
     });
     window.addEventListener('resize', updateContainer, false);
-  })
+  }
 });
 
 onUnmounted(() => {
