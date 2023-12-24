@@ -16,9 +16,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,7 +48,19 @@ public class TopicController {
         if (limit != -1) {
             topicStream = topicStream.limit(limit);
         }
-        List<JSONObject> resultList = topicStream.map(this::getPopularityByTopicName).collect(Collectors.toList());
+        int cores = Runtime.getRuntime().availableProcessors();
+        ExecutorService executor = Executors.newFixedThreadPool(cores);
+        List<Future<JSONObject>> resultFutureList = new ArrayList<>();
+        topicStream.forEach(topic -> {
+            resultFutureList.add(executor.submit(() -> getPopularityByTopicName(topic)));
+        });
+        List<JSONObject> resultList = resultFutureList.stream().map(resultFuture -> {
+            try {
+                return resultFuture.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new ServiceException("500", "An error occur when calculating the popularity of topics");
+            }
+        }).collect(Collectors.toList());
         JSONObject resultJSONObject = new JSONObject();
         resultJSONObject.put("popularity", resultList);
         return Result.success(response, resultJSONObject);
