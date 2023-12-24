@@ -85,9 +85,15 @@ create index question_tag_relation_tag_id_fk
 -- auto-generated definition
 create table tag
 (
-    id       int auto_increment
+    id                       int auto_increment
         primary key,
-    tag_name varchar(100) null,
+    tag_name                 varchar(100) null,
+    thread_number            int          null,
+    thread_number_2023       int          null,
+    average_view_count       int          null,
+    average_vote_count       int          null,
+    discussion_people_number int          null,
+    comprehensive_score      int          null,
     constraint tag_pk
         unique (tag_name)
 );
