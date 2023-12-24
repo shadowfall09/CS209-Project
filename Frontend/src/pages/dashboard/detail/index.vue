@@ -1,13 +1,15 @@
 <template>
   <div class="dashboard-panel-detail">
-    <t-card title="Exception VS Error Popularity" class="dashboard-detail-card">
+    <t-card title="Exception VS Error Popularity"
+            hover-shadow="true"
+            class="dashboard-detail-card">
       <t-row :gutter="[16, 16]">
         <t-col v-for="(item, index) in paneListData" :key="index" :xs="6" :xl="3">
           <t-card class="dashboard-list-card" :description="item.title" :loading="item.loading">
             <div class="dashboard-list-card__number">{{ item.number }}</div>
             <div class="dashboard-list-card__text">
               <div class="dashboard-list-card__text-left">
-                {{item.name}}
+                {{ item.name }}
               </div>
             </div>
           </t-card>
@@ -16,21 +18,22 @@
     </t-card>
     <t-row :gutter="[16, 16]" class="row-margin">
       <t-col :xs="12" :xl="9">
-        <t-card class="dashboard-detail-card" title="Top Bug Popularity" :loading="line_loading">
+        <t-card class="dashboard-detail-card" hover-shadow="true" title="Top Bug Popularity" :loading="is_loading">
           <div id="lineContainer"
                :style="{ width: `100%`, height: `${resizeTime * 580}px`, margin: '0 auto' }"
           />
         </t-card>
       </t-col>
       <t-col :xs="12" :xl="3">
-        <t-card title="Error VS Exception" class="dashboard-chart-card" :loading="EE_loading">
+        <t-card title="Error VS Exception" hover-shadow="true" class="dashboard-chart-card" :loading="is_loading">
           <div
             id="EEContainer"
             ref="EEContainer"
             :style="{ width: `${resizeTime * 326}px`, height: `${resizeTime * 300}px`, margin: '0 auto' }"
           />
         </t-card>
-        <t-card title="Syntax Error VS Fatal Error" subtitle="Top 7" :class="['row-margin','dashboard-chart-card']" :loading="SFE_loading">
+        <t-card title="Syntax Error VS Fatal Error" hover-shadow="true" subtitle="Top 7"
+                :class="['row-margin','dashboard-chart-card']" :loading="is_loading">
           <div
             id="SFEContainer"
             ref="SFEContainer"
@@ -39,12 +42,39 @@
         </t-card>
       </t-col>
     </t-row>
-    <t-card title="Treemap & SunBurst" :class="['row-margin','dashboard-detail-card']" :loading="TS_loading">
+    <t-card title="Treemap & SunBurst" hover-shadow="true" :class="['row-margin','dashboard-detail-card']"
+            :loading="is_loading">
       <div
         id="TSContainer"
         ref="TSContainer"
         :style="{ width: `100%`, height: `${resizeTime * 580}px`, margin: '0 auto' }"
       />
+    </t-card>
+    <t-card title="Category Comparison" hover-shadow="true" :class="['row-margin','dashboard-detail-card']"
+            :loading="is_loading">
+      <template #actions>
+        <t-space align="center">
+          <t-select autoWidth="true" showArrow="true" defaultValue="Exception" :disabled="is_loading"
+                    @change="handleSelectionChange">
+            <t-option key="Exception" label="Exception" value="Exception"/>
+            <t-option key="FatalError" label="Fatal Error" value="FatalError"/>
+            <t-option key="SyntaxError" label="Syntax Error" value="SyntaxError"/>
+          </t-select>
+        </t-space>
+      </template>
+      <div
+        id="topicPopularityBarChartContainer"
+        ref="topicPopularityBarChartContainer"
+        style="width: 100%; height: 351px; display: flex; align-items: center; justify-content: center;"
+      >
+        <t-alert v-if="isLoadingFailed" theme="error"
+                 @close="handleLoadingFailedAlertClose">
+          <template #close>
+            <font-awesome-icon :icon="['fas', 'rotate-right']"/>
+          </template>
+          Loading Failed
+        </t-alert>
+      </div>
     </t-card>
   </div>
 </template>
@@ -57,29 +87,24 @@ export default {
 
 <script setup lang="ts">
 import {reactive, nextTick, ref, onMounted, onUnmounted, watch, computed, onDeactivated} from 'vue';
-// import * as echarts from 'echarts';
 import * as echarts from 'echarts/core';
-// import {EChartsOption} from 'echarts/types/dist/echarts';
 import {GridComponent, TooltipComponent, LegendComponent} from 'echarts/components';
 import {LineChart, PieChart, SunburstChart, TreemapChart} from 'echarts/charts';
 import {CanvasRenderer} from 'echarts/renderers';
-import {getFolderLineDataSet,getPieChartDataSet} from './index';
+import {getFolderLineDataSet, getPieChartDataSet, constructTopicPopularityBarChartInitDataset} from './index';
 import {PANE_LIST_DATA} from './constants';
 import {useSettingStore} from '@/store';
 import {changeChartsTheme, getChartListColor} from '@/utils/color';
 import * as bugApi from '@/api/bug';
-import { UniversalTransition } from 'echarts/features';
+import {UniversalTransition} from 'echarts/features';
 
 
-echarts.use([GridComponent, LegendComponent, TooltipComponent, LineChart,PieChart,TreemapChart,UniversalTransition, SunburstChart,CanvasRenderer]);
-let line_loading = ref(true);
-let EE_loading = ref(true);
-let SFE_loading = ref(true);
-let TS_loading = ref(true);
+echarts.use([GridComponent, LegendComponent, TooltipComponent, LineChart, PieChart, TreemapChart, UniversalTransition, SunburstChart, CanvasRenderer]);
+let is_loading = ref(true);
 const store = useSettingStore();
 const chartColors = computed(() => store.chartColors);
 const paneListData = ref(PANE_LIST_DATA);
-const  state = reactive({
+const state = reactive({
   Error: null,
   Exception: null,
   SyntaxErrorList: null,
@@ -185,7 +210,7 @@ const updateContainer = () => {
     width: resizeTime.value * 326,
     height: resizeTime.value * 326,
   });
-  lineChart?.resize({
+  TSChart?.resize({
     width: TSContainer.clientWidth,
     height: TSContainer.clientHeight,
   });
@@ -199,8 +224,8 @@ const renderEEChart = () => {
     EEContainer = document.getElementById('EEContainer');
   }
   const data = [
-    { value: state.Error, name: 'Error' },
-    { value: state.Exception, name: 'Exception' },
+    {value: state.Error, name: 'Error'},
+    {value: state.Exception, name: 'Exception'},
   ];
   EEChart = echarts.init(EEContainer);
   EEChart.setOption(getPieChartDataSet({
@@ -230,8 +255,8 @@ const renderSFEChart = () => {
     }, 0);
   }
   const data = [
-    { value: syntaxErrorData, name: 'Syntax Error' },
-    { value: fatalErrorData, name: 'Fatal Error' },
+    {value: syntaxErrorData, name: 'Syntax Error'},
+    {value: fatalErrorData, name: 'Fatal Error'},
   ];
   SFEChart = echarts.init(SFEContainer);
   SFEChart.setOption(getPieChartDataSet({
@@ -240,13 +265,59 @@ const renderSFEChart = () => {
     name: "Syntax Error VS Fatal Error",
   }));
 };
+let metricBarChart: number = 0;
+let topicPopularityBarChartContainer: HTMLElement;
+let topicPopularityBarChart: echarts.ECharts;
+let isLoadingFailed = false;
+
+
+const handleSelectionChange = (value: string, context: { trigger: string; }) => {
+  if (context.trigger === 'check') {
+    switch (value) {
+      case "Exception":
+        metricBarChart = 0;
+        break;
+      case "FatalError":
+        metricBarChart = 1;
+        break;
+      case "SyntaxError":
+        metricBarChart = 2;
+        break;
+    }
+    if (topicPopularityBarChart !== undefined) {
+      [topicPopularityBarChart].forEach((item) => {
+        item.dispose();
+      });
+      renderTopicPopularityBarChart(metricBarChart);
+    }
+  }
+};
+
+const renderTopicPopularityBarChart = (metric: number) => {
+  if (!topicPopularityBarChartContainer) {
+    topicPopularityBarChartContainer = document.getElementById('topicPopularityBarChartContainer');
+  }
+  topicPopularityBarChart = echarts.init(topicPopularityBarChartContainer, null, {
+    renderer: 'svg'
+  });
+  topicPopularityBarChart.setOption(constructTopicPopularityBarChartInitDataset({
+    ...chartColors.value,
+    syntaxErrorData: state.SyntaxErrorList,
+    fatalErrorData: state.FatalErrorList,
+    exceptionData: state.ExceptionList,
+    metric
+  }));
+};
+const handleLoadingFailedAlertClose = () => {
+
+}
 
 let TSContainer: HTMLElement;
 let TSChart: echarts.ECharts;
 const renderTSChart = () => {
   TSContainer = document.getElementById('TSContainer');
   TSChart = echarts.init(TSContainer);
-  let data={
+  let data = {
     name: 'Bugs',
     children: [
       {
@@ -263,7 +334,7 @@ const renderTSChart = () => {
       },]
   }
   const treemapOption: echarts.EChartsCoreOption = {
-    color:getChartListColor(),
+    color: getChartListColor(),
     tooltip: {
       trigger: 'item',
       formatter: '{b}'
@@ -288,7 +359,7 @@ const renderTSChart = () => {
   };
 
   const sunburstOption: echarts.EChartsCoreOption = {
-    color:getChartListColor(),
+    color: getChartListColor(),
     tooltip: {
       trigger: 'item',
       formatter: '{b}'
@@ -317,11 +388,14 @@ const renderTSChart = () => {
   setInterval(function () {
     currentOption =
       currentOption === treemapOption ? sunburstOption : treemapOption;
+    currentOption.color = getChartListColor();
     TSChart.setOption(currentOption);
+    changeChartsTheme([TSChart])
   }, 5000);
 };
 
 const renderCharts = () => {
+  renderTopicPopularityBarChart(0);
   renderEEChart();
   renderSFEChart();
   renderLineChart();
@@ -335,17 +409,18 @@ onMounted(() => {
     getSyntaxError(),
     getException(),
   ]).then(() => {
-      line_loading.value = false;
-      EE_loading.value = false;
-      SFE_loading.value = false;
-      TS_loading.value = false;
+    is_loading.value = false;
+    is_loading.value = false;
+    is_loading.value = false;
+    is_loading.value = false;
+    is_loading.value = false;
+    nextTick(() => {
+      renderCharts();
+      window.addEventListener('resize', updateContainer, false);
       nextTick(() => {
-        renderCharts();
-        window.addEventListener('resize', updateContainer, false);
-        nextTick(() => {
-          updateContainer();
-        });
+        updateContainer();
       });
+    });
   });
 });
 
@@ -362,7 +437,7 @@ onDeactivated(() => {
 const storeBrandThemeWatch = watch(
   () => store.brandTheme,
   () => {
-    changeChartsTheme([lineChart, EEChart, SFEChart,TSChart]);
+    changeChartsTheme([lineChart, EEChart, SFEChart, TSChart, topicPopularityBarChart]);
   },
 );
 
@@ -377,7 +452,7 @@ const storeBrandThemeWatch = watch(
 const storeModeWatch = watch(
   () => store.mode,
   () => {
-    [lineChart, EEChart, SFEChart,TSChart].forEach((item) => {
+    [lineChart, EEChart, SFEChart, TSChart,topicPopularityBarChart].forEach((item) => {
       item.dispose();
     });
     renderCharts();
@@ -410,9 +485,11 @@ const storeModeWatch = watch(
     padding-top: 8px;
     padding-bottom: 8px;
   }
+
   :deep(.t-card__body) {
     padding: 0;
   }
+
   display: flex;
   flex-direction: column;
   flex: 0;

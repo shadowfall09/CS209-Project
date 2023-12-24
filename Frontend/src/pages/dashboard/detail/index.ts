@@ -64,8 +64,12 @@ export function getFolderLineDataSet({
       },
     },
     toolbox: {
+      show: true,
       feature: {
-        saveAsImage: {}
+        mark: {show: true},
+        dataView: {show: false},
+        restore: {show: false},
+        saveAsImage: {show: true}
       }
     },
     series: [
@@ -156,8 +160,12 @@ export function getPieChartDataSet({
       right: '0',
     },
     toolbox: {
+      show: true,
       feature: {
-        saveAsImage: {}
+        mark: {show: true},
+        dataView: {show: false},
+        restore: {show: false},
+        saveAsImage: {show: true}
       }
     },
     legend: {
@@ -229,5 +237,105 @@ export function getPieChartDataSet({
         data: data,
       },
     ],
+  };
+}
+
+
+
+/** 柱状图数据源 */
+export function constructTopicPopularityBarChartInitDataset({
+  placeholderColor,
+    borderColor,
+    syntaxErrorData = [],
+    fatalErrorData = [],
+    exceptionData = [],
+    metric,
+}: {
+  syntaxErrorData?: Array<{ value: number, name: string }>,
+    fatalErrorData?: Array<{ value: number, name: string }>,
+    exceptionData?: Array<{ value: number, name: string }>
+} & TChartColor&{metric:number}) {
+  let topArray = [];
+  let scoreArray = [];
+  switch (metric) {
+    case 0:
+      scoreArray = exceptionData;
+      for (let i = 0; i < exceptionData.length; i++) {
+        topArray.push(exceptionData[i].name);
+      }
+      break;
+    case 1:
+      scoreArray = fatalErrorData;
+      for (let i = 0; i < fatalErrorData.length; i++) {
+        topArray.push(fatalErrorData[i].name);
+      }
+      break;
+    case 2:
+      scoreArray = syntaxErrorData;
+      for (let i = 0; i < syntaxErrorData.length; i++) {
+        topArray.push(syntaxErrorData[i].name);
+      }
+      break;
+  }
+  return {
+    toolbox: {
+      show: true,
+      feature: {
+        mark: {show: true},
+        dataView: {show: false},
+        restore: {show: false},
+        saveAsImage: {show: true}
+      }
+    },
+    tooltip: {
+      trigger: 'item',
+      formatter: function (params) {
+        return params.data.name + ': ' + params.data.value;
+      },
+    },
+    color: getChartListColor(),
+    xAxis: {
+      type: 'category',
+      data: topArray,
+      axisLabel: {
+        color: placeholderColor,
+      },
+      axisLine: {
+        lineStyle: {
+          color: getChartListColor()[1],
+          width: 1,
+        },
+      },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        color: placeholderColor,
+      },
+      splitLine: {
+        lineStyle: {
+          color: borderColor,
+        },
+      },
+    },
+    grid: {
+      top: '5%',
+      left: '50px',
+      right: '35px',
+      bottom: '60px',
+    },
+    series: [
+      {
+        data: scoreArray,
+        type: 'bar',
+        label: {
+          show: true,
+          position: 'top',
+          textStyle: {
+            color: placeholderColor
+          }
+        }
+      }
+    ]
   };
 }
