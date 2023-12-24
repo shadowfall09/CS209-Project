@@ -86,7 +86,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import {reactive, nextTick, ref, onMounted, onUnmounted, watch, computed, onDeactivated} from 'vue';
+import {reactive, nextTick, ref, onMounted, onUnmounted, watch, computed, onDeactivated, onActivated} from 'vue';
 import * as echarts from 'echarts/core';
 import {GridComponent, TooltipComponent, LegendComponent,ToolboxComponent} from 'echarts/components';
 import {BarChart,LineChart, PieChart, SunburstChart, TreemapChart} from 'echarts/charts';
@@ -111,6 +111,8 @@ const state = reactive({
   FatalErrorList: null,
   ExceptionList: null,
 });
+let isMounted = ref(false);
+
 
 const getErrorAndException = async () => {
   try {
@@ -213,6 +215,10 @@ const updateContainer = () => {
   TSChart?.resize({
     width: TSContainer.clientWidth,
     height: TSContainer.clientHeight,
+  });
+  topicPopularityBarChart?.resize({
+    width: topicPopularityBarChartContainer.clientWidth,
+    height: topicPopularityBarChartContainer.clientHeight,
   });
 };
 
@@ -395,6 +401,13 @@ const renderTSChart = () => {
 };
 
 const renderCharts = () => {
+  if (document.documentElement.clientWidth >= 1400 && document.documentElement.clientWidth < 1920) {
+    resizeTime.value = Number((document.documentElement.clientWidth / 2080).toFixed(2));
+  } else if (document.documentElement.clientWidth < 1080) {
+    resizeTime.value = Number((document.documentElement.clientWidth / 1080).toFixed(2));
+  } else {
+    resizeTime.value = 1;
+  }
   renderTopicPopularityBarChart(0);
   renderEEChart();
   renderSFEChart();
@@ -420,6 +433,7 @@ onMounted(() => {
       nextTick(() => {
         updateContainer();
       });
+      isMounted.value = true;
     });
   });
 });
@@ -428,28 +442,33 @@ onUnmounted(() => {
   window.removeEventListener('resize', updateContainer);
 });
 
-onDeactivated(() => {
-  storeModeWatch();
-  storeBrandThemeWatch();
+// onDeactivated(() => {
+//   storeModeWatch();
+//   storeBrandThemeWatch();
+// });
+
+onActivated(() => {
+  if (!isMounted.value) {
+    return;
+  }
+  changeChartsTheme([lineChart, EEChart, SFEChart, TSChart,topicPopularityBarChart]);
+  [lineChart, EEChart, SFEChart, TSChart,topicPopularityBarChart].forEach((item) => {
+    item.dispose();
+  });
+  renderCharts();
 });
 
-
-const storeBrandThemeWatch = watch(
+watch(
   () => store.brandTheme,
   () => {
+    // [lineChart, EEChart, SFEChart, TSChart,topicPopularityBarChart].forEach((item) => {
+    //   item.dispose();
+    // });
+    // renderCharts();
     changeChartsTheme([lineChart, EEChart, SFEChart, TSChart, topicPopularityBarChart]);
   },
 );
-
-// const onSatisfyChange = () => {
-//   scatterChart.setOption(getScatterDataSet({...chartColors.value}));
-// };
-//
-// const onMaterialChange = (value: string[]) => {
-//   const chartColors = computed(() => store.chartColors);
-//   lineChart.setOption(getFolderLineDataSet({dateTime: value, ...chartColors.value}));
-// };
-const storeModeWatch = watch(
+watch(
   () => store.mode,
   () => {
     [lineChart, EEChart, SFEChart, TSChart,topicPopularityBarChart].forEach((item) => {
