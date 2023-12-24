@@ -154,8 +154,8 @@ public class TopicController {
     @GetMapping("related/search/{topic}")
     public Result searchRelatedTopic(HttpServletResponse response, @PathVariable("topic") String topic) {
         String topicLowerCase = topic.toLowerCase();
-        List<String> questionIdList = questionService.list(new QueryWrapper<Question>().select("id").like("lower(title)", topicLowerCase).or().like("lower(content)", topicLowerCase)).stream().map(Question::getId).collect(Collectors.toList());
-        List<String> answerIdList = answerService.list(new QueryWrapper<Answer>().select("id").like("lower(title)", topicLowerCase).or().like("lower(content)", topicLowerCase)).stream().map(Answer::getId).collect(Collectors.toList());
+        List<String> questionIdList = questionService.list(new QueryWrapper<Question>().select("id").like("lower(title)", topicLowerCase).or().like("lower(content)", topicLowerCase)).stream().map(Question::getId).toList();
+        List<String> answerIdList = answerService.list(new QueryWrapper<Answer>().select("id").like("lower(title)", topicLowerCase).or().like("lower(content)", topicLowerCase)).stream().map(Answer::getId).toList();
         Map<Integer, Integer> relatedTopicMap = new HashMap<>();
         questionIdList.forEach(questionId -> questionTagRelationService.list(new QueryWrapper<QuestionTagRelation>().eq("question_id", questionId)).forEach(questionTagRelation -> {
             int tagId = questionTagRelation.getTagId();
@@ -186,6 +186,17 @@ public class TopicController {
         }).collect(Collectors.toList());
         JSONObject resultJSONObject = new JSONObject();
         resultJSONObject.put("relatedTopicList", relatedTopicList);
+        return Result.success(response, resultJSONObject);
+    }
+
+    @GetMapping("related/search/{topic1}/{topic2}")
+    public Result searchRelatedTopic(HttpServletResponse response, @PathVariable("topic1") String topic1, @PathVariable("topic2") String topic2) {
+        String topic1LowerCase = topic1.toLowerCase();
+        String topic2LowerCase = topic2.toLowerCase();
+        List<String> questionIdList = questionService.list(new QueryWrapper<Question>().select("id").nested(wrapper -> wrapper.like("lower(title)", topic1LowerCase).or().like("lower(content)", topic1LowerCase)).and(wrapper -> wrapper.like("lower(title)", topic2LowerCase).or().like("lower(content)", topic2LowerCase))).stream().map(Question::getId).toList();
+        List<String> answerIdList = answerService.list(new QueryWrapper<Answer>().select("id").nested(wrapper -> wrapper.like("lower(title)", topic1LowerCase).or().like("lower(content)", topic1LowerCase)).and(wrapper -> wrapper.like("lower(title)", topic2LowerCase).or().like("lower(content)", topic2LowerCase))).stream().map(Answer::getId).toList();
+        JSONObject resultJSONObject = new JSONObject();
+        resultJSONObject.put("relevance", questionIdList.size() + answerIdList.size());
         return Result.success(response, resultJSONObject);
     }
 }
