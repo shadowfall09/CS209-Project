@@ -39,8 +39,12 @@
         </t-card>
       </t-col>
     </t-row>
-    <t-card title="Treemap & SunBurst" :class="['row-margin','dashboard-detail-card']">
-
+    <t-card title="Treemap & SunBurst" :class="['row-margin','dashboard-detail-card']" :loading="TS_loading">
+      <div
+        id="TSContainer"
+        ref="TSContainer"
+        :style="{ width: `100%`, height: `${resizeTime * 580}px`, margin: '0 auto' }"
+      />
     </t-card>
   </div>
 </template>
@@ -53,21 +57,25 @@ export default {
 
 <script setup lang="ts">
 import {reactive, nextTick, ref, onMounted, onUnmounted, watch, computed, onDeactivated} from 'vue';
+// import * as echarts from 'echarts';
 import * as echarts from 'echarts/core';
+// import {EChartsOption} from 'echarts/types/dist/echarts';
 import {GridComponent, TooltipComponent, LegendComponent} from 'echarts/components';
-import {LineChart,PieChart} from 'echarts/charts';
+import {LineChart, PieChart, SunburstChart, TreemapChart} from 'echarts/charts';
 import {CanvasRenderer} from 'echarts/renderers';
 import {getFolderLineDataSet,getPieChartDataSet} from './index';
 import {PANE_LIST_DATA} from './constants';
 import {useSettingStore} from '@/store';
-import {changeChartsTheme} from '@/utils/color';
+import {changeChartsTheme, getChartListColor} from '@/utils/color';
 import * as bugApi from '@/api/bug';
+import { UniversalTransition } from 'echarts/features';
 
 
-echarts.use([GridComponent, LegendComponent, TooltipComponent, LineChart,PieChart, CanvasRenderer]);
+echarts.use([GridComponent, LegendComponent, TooltipComponent, LineChart,PieChart,TreemapChart,UniversalTransition, SunburstChart,CanvasRenderer]);
 let line_loading = ref(true);
 let EE_loading = ref(true);
 let SFE_loading = ref(true);
+let TS_loading = ref(true);
 const store = useSettingStore();
 const chartColors = computed(() => store.chartColors);
 const paneListData = ref(PANE_LIST_DATA);
@@ -177,6 +185,10 @@ const updateContainer = () => {
     width: resizeTime.value * 326,
     height: resizeTime.value * 326,
   });
+  lineChart?.resize({
+    width: TSContainer.clientWidth,
+    height: TSContainer.clientHeight,
+  });
 };
 
 
@@ -229,10 +241,91 @@ const renderSFEChart = () => {
   }));
 };
 
+let TSContainer: HTMLElement;
+let TSChart: echarts.ECharts;
+const renderTSChart = () => {
+  TSContainer = document.getElementById('TSContainer');
+  TSChart = echarts.init(TSContainer);
+  let data={
+    name: 'Bugs',
+    children: [
+      {
+        name: 'Exceptions',
+        children: state.ExceptionList
+      },
+      {
+        name: 'Syntax Errors',
+        children: state.SyntaxErrorList
+      },
+      {
+        name: 'Fatal Errors',
+        children: state.FatalErrorList
+      },]
+  }
+  const treemapOption: echarts.EChartsCoreOption = {
+    color:getChartListColor(),
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}'
+    },
+    series: [
+      {
+        type: 'treemap',
+        id: 'echarts-package-size',
+        animationDurationUpdate: 1000,
+        roam: false,
+        nodeClick: undefined,
+        data: data.children,
+        universalTransition: true,
+        label: {
+          show: true
+        },
+        breadcrumb: {
+          show: false
+        }
+      }
+    ]
+  };
+
+  const sunburstOption: echarts.EChartsCoreOption = {
+    color:getChartListColor(),
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}'
+    },
+    series: [
+      {
+        type: 'sunburst',
+        id: 'echarts-package-size',
+        radius: ['20%', '90%'],
+        animationDurationUpdate: 1000,
+        nodeClick: undefined,
+        data: data.children,
+        universalTransition: true,
+        itemStyle: {
+          borderWidth: 1,
+          borderColor: 'rgba(255,255,255,.5)'
+        },
+        label: {
+          show: false
+        }
+      }
+    ]
+  };
+  let currentOption = treemapOption;
+  TSChart.setOption(currentOption);
+  setInterval(function () {
+    currentOption =
+      currentOption === treemapOption ? sunburstOption : treemapOption;
+    TSChart.setOption(currentOption);
+  }, 5000);
+};
+
 const renderCharts = () => {
   renderEEChart();
   renderSFEChart();
   renderLineChart();
+  renderTSChart();
 };
 
 onMounted(() => {
@@ -245,6 +338,7 @@ onMounted(() => {
       line_loading.value = false;
       EE_loading.value = false;
       SFE_loading.value = false;
+      TS_loading.value = false;
       nextTick(() => {
         renderCharts();
         window.addEventListener('resize', updateContainer, false);
@@ -268,7 +362,7 @@ onDeactivated(() => {
 const storeBrandThemeWatch = watch(
   () => store.brandTheme,
   () => {
-    changeChartsTheme([lineChart, EEChart, SFEChart]);
+    changeChartsTheme([lineChart, EEChart, SFEChart,TSChart]);
   },
 );
 
@@ -283,7 +377,7 @@ const storeBrandThemeWatch = watch(
 const storeModeWatch = watch(
   () => store.mode,
   () => {
-    [lineChart, EEChart, SFEChart].forEach((item) => {
+    [lineChart, EEChart, SFEChart,TSChart].forEach((item) => {
       item.dispose();
     });
     renderCharts();
