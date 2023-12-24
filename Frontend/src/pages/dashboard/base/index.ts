@@ -324,13 +324,12 @@ export function constructTopicPopularityRankChartInitDataset({
       colKey: 'rank',
       title: 'Rank',
       width: 70,
-      fixed: 'left',
     },
     {
       align: 'left',
       colKey: 'topic',
       title: 'Topic',
-      width: 100,
+      width: 135,
     },
     {
       align: 'center',
