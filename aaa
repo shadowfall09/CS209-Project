@@ -1,0 +1,50 @@
+    @GetMapping("related/search/{topic}")
+    public Result searchRelatedTopic(HttpServletResponse response, @PathVariable("topic") String topic) {
+        String topicLowerCase = topic.toLowerCase();
+        List<Integer> relatedTagIdList = tagService.getIdsByKeyword(topic);
+        if (relatedTagIdList.isEmpty()) {
+            Integer tagId = tagService.list(new QueryWrapper<Tag>().select("id, tag_name")).stream().min(Comparator.comparingInt(tag -> LevenshteinDistance.getDefaultInstance().apply(topicLowerCase, tag.getTagName()))).map(Tag::getId).orElse(null);
+            if ((tagId != null) && (LevenshteinDistance.getDefaultInstance().apply(topicLowerCase, tagService.getById(tagId).getTagName()) <= 3)) {
+                relatedTagIdList.add(tagId);
+            }
+        }
+        List<String> questionIdList = questionService.list(new QueryWrapper<Question>().select("id").like("title", topicLowerCase)).stream().map(Question::getId).collect(Collectors.toList());
+//        if (!questionIdList.isEmpty()) {
+//            relatedTagIdList.addAll(questionTagRelationService.list(new QueryWrapper<QuestionTagRelation>().in("question_id", questionIdList)).stream().map(QuestionTagRelation::getTagId).distinct().toList());
+//        }
+        List<String> answerIdList = answerService.list(new QueryWrapper<Answer>().select("id").like("title", topicLowerCase)).stream().map(Answer::getId).collect(Collectors.toList());
+//        if (!answerIdList.isEmpty()) {
+//            relatedTagIdList.addAll(answerTagRelationService.list(new QueryWrapper<AnswerTagRelation>().in("answer_id", answerIdList)).stream().map(AnswerTagRelation::getTagId).distinct().toList());
+//        }
+        Map<Integer, Integer> relatedTopicMap = new HashMap<>();
+        questionService.getIdsByTagIds(relatedTagIdList).forEach(questionId -> questionTagRelationService.list(new QueryWrapper<QuestionTagRelation>().eq("question_id", questionId)).forEach(questionTagRelation -> {
+            int tagId = questionTagRelation.getTagId();
+            if (relatedTopicMap.containsKey(tagId)) {
+                relatedTopicMap.put(tagId, relatedTopicMap.get(tagId) + 1);
+            }
+            else {
+                relatedTopicMap.put(tagId, 1);
+            }
+        }));
+        answerService.getIdsByTagIds(relatedTagIdList).forEach(answerId -> answerTagRelationService.list(new QueryWrapper<AnswerTagRelation>().eq("answer_id", answerId)).forEach(answerTagRelation -> {
+            int tagId = answerTagRelation.getTagId();
+            if (relatedTopicMap.containsKey(tagId)) {
+                relatedTopicMap.put(tagId, relatedTopicMap.get(tagId) + 1);
+            }
+            else {
+                relatedTopicMap.put(tagId, 1);
+            }
+        }));
+        List<JSONObject> relatedTopicList = relatedTopicMap.entrySet().stream().map(entry -> new AbstractMap.SimpleEntry<>(tagService.getOne(new QueryWrapper<Tag>().select("tag_name").eq("id", entry.getKey())).getTagName(), entry.getValue())).filter(entry -> {
+            String temp = entry.getKey().toLowerCase();
+            return (!temp.contains(topicLowerCase)) && (!temp.contains("java"));
+        }).sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).map(entry -> {
+            JSONObject resultJSONObject = new JSONObject();
+            resultJSONObject.put("topicName", entry.getKey());
+            resultJSONObject.put("relevance", entry.getValue());
+            return resultJSONObject;
+        }).collect(Collectors.toList());
+        JSONObject resultJSONObject = new JSONObject();
+        resultJSONObject.put("relatedTopicList", relatedTopicList);
+        return Result.success(response, resultJSONObject);
+    }

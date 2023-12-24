@@ -5,21 +5,18 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.java2.backend.common.Result;
 import org.java2.backend.common.TopicPopularityCalculator;
-import org.java2.backend.entity.Tag;
+import org.java2.backend.entity.*;
 import org.java2.backend.exception.ServiceException;
-import org.java2.backend.service.IQuestionService;
-import org.java2.backend.service.ITagService;
+import org.java2.backend.service.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,6 +33,12 @@ public class TopicController {
 
     @Resource
     private IQuestionService questionService;
+    @Resource
+    private IQuestionTagRelationService questionTagRelationService;
+    @Resource
+    private IAnswerService answerService;
+    @Resource
+    private IAnswerTagRelationService answerTagRelationService;
 
     private final String[] topics = new String[]{"generics", "lambda", "multithreading", "exception", "spring", "stream", "junit", "reflection", "socket", "javafx"};
 
@@ -146,5 +149,43 @@ public class TopicController {
         int totalSum = sum.getThreadNumber() + sum.getThreadNumber2023() + sum.getAverageViewCount() + sum.getAverageVoteCount() + sum.getDiscussionPeopleNumber();
         result.put("comprehensiveScore", (int)(result.getIntValue("threadNumber") * (((double) sum.getThreadNumber()) / totalSum) + result.getIntValue("threadNumber2023") * (((double) sum.getThreadNumber2023()) / totalSum) + result.getIntValue("averageViewCount") * (((double) sum.getAverageViewCount()) / totalSum) + result.getIntValue("averageVoteCount") * (((double) sum.getAverageVoteCount()) / totalSum) + result.getIntValue("discussionPeopleNumber") * (((double) sum.getDiscussionPeopleNumber()) / totalSum)));
         return result;
+    }
+
+    @GetMapping("related/search/{topic}")
+    public Result searchRelatedTopic(HttpServletResponse response, @PathVariable("topic") String topic) {
+        String topicLowerCase = topic.toLowerCase();
+        List<String> questionIdList = questionService.list(new QueryWrapper<Question>().select("id").like("lower(title)", topicLowerCase).or().like("lower(content)", topicLowerCase)).stream().map(Question::getId).collect(Collectors.toList());
+        List<String> answerIdList = answerService.list(new QueryWrapper<Answer>().select("id").like("lower(title)", topicLowerCase).or().like("lower(content)", topicLowerCase)).stream().map(Answer::getId).collect(Collectors.toList());
+        Map<Integer, Integer> relatedTopicMap = new HashMap<>();
+        questionIdList.forEach(questionId -> questionTagRelationService.list(new QueryWrapper<QuestionTagRelation>().eq("question_id", questionId)).forEach(questionTagRelation -> {
+            int tagId = questionTagRelation.getTagId();
+            if (relatedTopicMap.containsKey(tagId)) {
+                relatedTopicMap.put(tagId, relatedTopicMap.get(tagId) + 1);
+            }
+            else {
+                relatedTopicMap.put(tagId, 1);
+            }
+        }));
+        answerIdList.forEach(answerId -> answerTagRelationService.list(new QueryWrapper<AnswerTagRelation>().eq("answer_id", answerId)).forEach(answerTagRelation -> {
+            int tagId = answerTagRelation.getTagId();
+            if (relatedTopicMap.containsKey(tagId)) {
+                relatedTopicMap.put(tagId, relatedTopicMap.get(tagId) + 1);
+            }
+            else {
+                relatedTopicMap.put(tagId, 1);
+            }
+        }));
+        List<JSONObject> relatedTopicList = relatedTopicMap.entrySet().stream().map(entry -> new AbstractMap.SimpleEntry<>(tagService.getOne(new QueryWrapper<Tag>().select("tag_name").eq("id", entry.getKey())).getTagName(), entry.getValue())).filter(entry -> {
+            String temp = entry.getKey().toLowerCase();
+            return (LevenshteinDistance.getDefaultInstance().apply(topicLowerCase, temp) > 3) && (!temp.contains("java"));
+        }).sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).map(entry -> {
+            JSONObject resultJSONObject = new JSONObject();
+            resultJSONObject.put("topicName", entry.getKey());
+            resultJSONObject.put("relevance", entry.getValue());
+            return resultJSONObject;
+        }).collect(Collectors.toList());
+        JSONObject resultJSONObject = new JSONObject();
+        resultJSONObject.put("relatedTopicList", relatedTopicList);
+        return Result.success(response, resultJSONObject);
     }
 }
