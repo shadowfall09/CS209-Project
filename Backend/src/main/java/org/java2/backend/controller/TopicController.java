@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.java2.backend.common.Result;
 import org.java2.backend.common.TopicPopularityCalculator;
@@ -27,6 +28,7 @@ import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/topic")
+@Slf4j
 public class TopicController {
     @Resource
     private ITagService tagService;
@@ -44,6 +46,7 @@ public class TopicController {
 
     @GetMapping("popularity/{limit}")
     public Result popularity(HttpServletResponse response, @PathVariable("limit") Long limit) {
+        log.info("Request Popularity Info");
         if (limit < -1) {
             throw new ServiceException("400", "Invalid path variable");
         }
@@ -71,11 +74,13 @@ public class TopicController {
 
     @GetMapping("popularity/search/{topic}")
     public Result searchTopic(HttpServletResponse response, @PathVariable("topic") String topic) {
+        log.info("Search Popularity Info");
         return Result.success(response, getPopularityByTopicName(topic));
     }
 
     @GetMapping("popularityAllTopics/{metric}/{limit}")
     public Result popularityAllTopics(HttpServletResponse response, @PathVariable("metric") Integer metric, @PathVariable("limit") Integer limit) {
+        log.info("Request All Popularity Info");
         if ((metric < -1) || (metric > 5) || (limit < -1)) {
             throw new ServiceException("400", "Invalid path variable");
         }
@@ -116,6 +121,7 @@ public class TopicController {
 
     @GetMapping("popularity/calculateMetricsForAllTags")
     public Result calculateMetricsForAllTags(HttpServletResponse response) {
+        log.info("Calculate Metrics For All Tags");
         int coreNumber = Runtime.getRuntime().availableProcessors();
         int tagNumber = (int) tagService.count();
         int size = tagNumber / coreNumber + 1;
@@ -129,6 +135,7 @@ public class TopicController {
 
     @GetMapping("popularity/calculateComprehensiveScoreForAllTags")
     public Result calculateComprehensiveScoreForAllTags(HttpServletResponse response) {
+        log.info("Calculate Comprehensive Score For All Tags");
         TopicPopularityCalculator topicPopularityCalculator = new TopicPopularityCalculator(tagService, questionService, false, -1, -1);
         Thread topicPopularityCalculatorThread = new Thread(topicPopularityCalculator);
         topicPopularityCalculatorThread.start();
@@ -153,6 +160,7 @@ public class TopicController {
 
     @GetMapping("related/search/{topic}")
     public Result searchRelatedTopic(HttpServletResponse response, @PathVariable("topic") String topic) {
+        log.info("Search Related Topic");
         String topicLowerCase = topic.toLowerCase();
         List<String> questionIdList = questionService.list(new QueryWrapper<Question>().select("id").like("lower(title)", topicLowerCase).or().like("lower(content)", topicLowerCase)).stream().map(Question::getId).toList();
         List<String> answerIdList = answerService.list(new QueryWrapper<Answer>().select("id").like("lower(title)", topicLowerCase).or().like("lower(content)", topicLowerCase)).stream().map(Answer::getId).toList();
@@ -193,6 +201,7 @@ public class TopicController {
 
     @GetMapping("related/search/{topic1}/{topic2}")
     public Result searchTwoTopicRelevance(HttpServletResponse response, @PathVariable("topic1") String topic1, @PathVariable("topic2") String topic2) {
+        log.info("Search Two Topic Relevance");
         String topic1LowerCase = topic1.toLowerCase();
         String topic2LowerCase = topic2.toLowerCase();
         List<String> questionIdTopic1List = questionService.list(new QueryWrapper<Question>().select("id").like("lower(title)", topic1LowerCase).or().like("lower(content)", topic1LowerCase)).stream().map(Question::getId).toList();
