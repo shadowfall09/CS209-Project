@@ -175,13 +175,15 @@ public class TopicController {
                 relatedTopicMap.put(tagId, 1);
             }
         }));
+        int postTotalNumber = questionIdList.size() + answerIdList.size();
         List<JSONObject> relatedTopicList = relatedTopicMap.entrySet().stream().map(entry -> new AbstractMap.SimpleEntry<>(tagService.getOne(new QueryWrapper<Tag>().select("tag_name").eq("id", entry.getKey())).getTagName(), entry.getValue())).filter(entry -> {
             String temp = entry.getKey().toLowerCase();
             return (LevenshteinDistance.getDefaultInstance().apply(topicLowerCase, temp) > 3) && (!temp.contains("java"));
         }).sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).map(entry -> {
             JSONObject resultJSONObject = new JSONObject();
             resultJSONObject.put("topicName", entry.getKey());
-            resultJSONObject.put("relevance", entry.getValue());
+            resultJSONObject.put("relatedPostNumber", entry.getValue());
+            resultJSONObject.put("relevance", ((double)entry.getValue()) / postTotalNumber);
             return resultJSONObject;
         }).collect(Collectors.toList());
         JSONObject resultJSONObject = new JSONObject();
@@ -190,13 +192,16 @@ public class TopicController {
     }
 
     @GetMapping("related/search/{topic1}/{topic2}")
-    public Result searchRelatedTopic(HttpServletResponse response, @PathVariable("topic1") String topic1, @PathVariable("topic2") String topic2) {
+    public Result searchTwoTopicRelevance(HttpServletResponse response, @PathVariable("topic1") String topic1, @PathVariable("topic2") String topic2) {
         String topic1LowerCase = topic1.toLowerCase();
         String topic2LowerCase = topic2.toLowerCase();
-        List<String> questionIdList = questionService.list(new QueryWrapper<Question>().select("id").nested(wrapper -> wrapper.like("lower(title)", topic1LowerCase).or().like("lower(content)", topic1LowerCase)).and(wrapper -> wrapper.like("lower(title)", topic2LowerCase).or().like("lower(content)", topic2LowerCase))).stream().map(Question::getId).toList();
-        List<String> answerIdList = answerService.list(new QueryWrapper<Answer>().select("id").nested(wrapper -> wrapper.like("lower(title)", topic1LowerCase).or().like("lower(content)", topic1LowerCase)).and(wrapper -> wrapper.like("lower(title)", topic2LowerCase).or().like("lower(content)", topic2LowerCase))).stream().map(Answer::getId).toList();
+        List<String> questionIdTopic1List = questionService.list(new QueryWrapper<Question>().select("id").like("lower(title)", topic1LowerCase).or().like("lower(content)", topic1LowerCase)).stream().map(Question::getId).toList();
+        List<String> answerIdTopic1List = answerService.list(new QueryWrapper<Answer>().select("id").like("lower(title)", topic1LowerCase).or().like("lower(content)", topic1LowerCase)).stream().map(Answer::getId).toList();
+        List<String> questionIdBothList = questionService.list(new QueryWrapper<Question>().select("id").nested(wrapper -> wrapper.like("lower(title)", topic1LowerCase).or().like("lower(content)", topic1LowerCase)).and(wrapper -> wrapper.like("lower(title)", topic2LowerCase).or().like("lower(content)", topic2LowerCase))).stream().map(Question::getId).toList();
+        List<String> answerIdBothList = answerService.list(new QueryWrapper<Answer>().select("id").nested(wrapper -> wrapper.like("lower(title)", topic1LowerCase).or().like("lower(content)", topic1LowerCase)).and(wrapper -> wrapper.like("lower(title)", topic2LowerCase).or().like("lower(content)", topic2LowerCase))).stream().map(Answer::getId).toList();
         JSONObject resultJSONObject = new JSONObject();
-        resultJSONObject.put("relevance", questionIdList.size() + answerIdList.size());
+        resultJSONObject.put("relatedPostNumber", questionIdBothList.size() + answerIdBothList.size());
+        resultJSONObject.put("relevance", ((double) (questionIdBothList.size() + answerIdBothList.size())) / (questionIdTopic1List.size() + answerIdTopic1List.size()));
         return Result.success(response, resultJSONObject);
     }
 }
