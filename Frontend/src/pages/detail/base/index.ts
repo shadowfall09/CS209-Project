@@ -15,7 +15,7 @@ export function constructRelatedTopicBarChartInitDataset({
   let topicArray = popularity.map(relatedTopicInfo => relatedTopicInfo.topic);
   let scoreArray = popularity.map(relatedTopicInfo => relatedTopicInfo.relatedPostNumber);
   if (metric === 1) {
-    scoreArray = popularity.map(relatedTopicInfo => relatedTopicInfo.relevance);
+    scoreArray = popularity.map(relatedTopicInfo => Math.round(relatedTopicInfo.relevance * 100000) / 100000);
   }
 
   const dataset = {

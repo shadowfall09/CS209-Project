@@ -231,7 +231,7 @@ const renderRelatedTopicBarChart = (metric: number) => {
       const start = event.start;
       const end = event.end;
       const numberOfBars = (end - start) / 100 * relatedTopicData.value.length;
-      const shouldShowLabel = numberOfBars < 50;
+      const shouldShowLabel = numberOfBars < 30;
       relatedTopicBarChart.setOption({
         series: [{
           label: {
