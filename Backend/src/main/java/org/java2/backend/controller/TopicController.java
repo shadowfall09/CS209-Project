@@ -46,7 +46,7 @@ public class TopicController {
 
     @GetMapping("popularity/{limit}")
     public Result popularity(HttpServletResponse response, @PathVariable("limit") Long limit) {
-        log.info("Request Popularity Info");
+        log.info("Request Topic Popularity Info");
         if (limit < -1) {
             throw new ServiceException("400", "Invalid path variable");
         }
@@ -74,13 +74,13 @@ public class TopicController {
 
     @GetMapping("popularity/search/{topic}")
     public Result searchTopic(HttpServletResponse response, @PathVariable("topic") String topic) {
-        log.info("Search Popularity Info");
+        log.info("Search Topic Popularity Info");
         return Result.success(response, getPopularityByTopicName(topic));
     }
 
     @GetMapping("popularityAllTopics/{metric}/{limit}")
     public Result popularityAllTopics(HttpServletResponse response, @PathVariable("metric") Integer metric, @PathVariable("limit") Integer limit) {
-        log.info("Request All Popularity Info");
+        log.info("Request All Topic Popularity Info");
         if ((metric < -1) || (metric > 5) || (limit < -1)) {
             throw new ServiceException("400", "Invalid path variable");
         }
