@@ -15,6 +15,6 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements ITagS
 
     @Override
     public List<Integer> getIdsByKeyword(String keyword) {
-        return baseMapper.selectList(new QueryWrapper<Tag>().like("tag_name", keyword)).stream().map(Tag::getId).collect(Collectors.toList());
+        return baseMapper.selectList(new QueryWrapper<Tag>().like("lower(tag_name)", keyword)).stream().map(Tag::getId).collect(Collectors.toList());
     }
 }
