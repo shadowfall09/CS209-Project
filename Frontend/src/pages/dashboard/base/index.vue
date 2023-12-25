@@ -17,7 +17,9 @@
               <t-switch size="large" :label="['&nbsp;&nbsp;Sorted&nbsp;&nbsp;', 'Unsorted']"
                         @change="handleSwitchChange"></t-switch>
               <t-button shape="circle" theme="primary" @click="refresh">
-                <template #icon> <font-awesome-icon :icon="['fas', 'rotate-right']" /></template>
+                <template #icon>
+                  <font-awesome-icon :icon="['fas', 'rotate-right']"/>
+                </template>
               </t-button>
             </t-space>
           </template>
@@ -29,7 +31,7 @@
             <t-alert v-if="isLoadingFailed" theme="error"
                      @close="refresh">
               <template #close>
-                <font-awesome-icon :icon="['fas', 'rotate-right']" />
+                <font-awesome-icon :icon="['fas', 'rotate-right']"/>
               </template>
               Loading Failed
             </t-alert>
@@ -52,12 +54,28 @@
                 <t-option key="discussionPeopleNumber" label="Discussion People Number" value="discussionPeopleNumber"/>
               </t-select>
               <t-button shape="circle" theme="primary" @click="refresh">
-                <template #icon> <font-awesome-icon :icon="['fas', 'rotate-right']" /></template>
+                <template #icon>
+                  <font-awesome-icon :icon="['fas', 'rotate-right']"/>
+                </template>
               </t-button>
             </t-space>
           </template>
           <div
-            style="overflow: auto; width: 100%; height: 351px; display: flex; align-items: center; justify-content: left;"
+            :style="isLoadingFailed ? {
+              overflow: 'auto',
+              width: '100%',
+              height: '351px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            } : {
+              overflow: 'auto',
+              width: '100%',
+              height: '351px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'left'
+            }"
           >
             <t-space v-if="(!isLoading)&&(!isLoadingFailed)" align="center">
               <t-table :data="TOPIC_DATA_LIST.slice(0, 5)" :columns="RANK_COLUMNS" row-key="topicData">
@@ -69,7 +87,7 @@
             <t-alert v-if="isLoadingFailed" theme="error"
                      @close="refresh">
               <template #close>
-                <font-awesome-icon :icon="['fas', 'rotate-right']" />
+                <font-awesome-icon :icon="['fas', 'rotate-right']"/>
               </template>
               Loading Failed
             </t-alert>
@@ -90,7 +108,9 @@
                 <t-option key="discussionPeopleNumber" label="Discussion People Number" value="discussionPeopleNumber"/>
               </t-select>
               <t-button shape="circle" theme="primary" @click="refresh">
-                <template #icon> <font-awesome-icon :icon="['fas', 'rotate-right']" /></template>
+                <template #icon>
+                  <font-awesome-icon :icon="['fas', 'rotate-right']"/>
+                </template>
               </t-button>
             </t-space>
           </template>
@@ -102,7 +122,7 @@
             <t-alert v-if="isLoadingFailed" theme="error"
                      @close="refresh">
               <template #close>
-                <font-awesome-icon :icon="['fas', 'rotate-right']" />
+                <font-awesome-icon :icon="['fas', 'rotate-right']"/>
               </template>
               Loading Failed
             </t-alert>
@@ -286,12 +306,12 @@ const handleSwitchChange = (value: boolean) => {
 };
 const fetchData = async () => {
   isLoading.value = true;
-  isLoadingFailed= false;
+  isLoadingFailed = false;
   await nextTick();
   popularityData = undefined;
   sessionStorage.removeItem("popularityData");
   try {
-    const { popularity } = await getTopicList(-1);
+    const {popularity} = await getTopicList(-1);
     popularityData = popularity;
     sessionStorage.setItem("popularityData", JSON.stringify(popularity));
   } catch (e) {
@@ -308,17 +328,17 @@ const renderTopicPopularityBarChart = (metric: number, sort: boolean) => {
   if (!topicPopularityBarChartContainer) {
     topicPopularityBarChartContainer = document.getElementById('topicPopularityBarChartContainer');
   }
-  if (popularityData !== undefined) {
+  if ((popularityData !== undefined) && (topicPopularityBarChartContainer)) {
     topicPopularityBarChart = echarts.init(topicPopularityBarChartContainer, null, {
       renderer: 'svg'
     });
-    topicPopularityBarChart.setOption(constructTopicPopularityBarChartInitDataset({ ...chartColors.value }, popularityData, metric, sort));
+    topicPopularityBarChart.setOption(constructTopicPopularityBarChartInitDataset({...chartColors.value}, popularityData, metric, sort));
   }
 };
 
 const renderTopicPopularityRankChart = (metric: number) => {
   if (popularityData !== undefined) {
-    let dataset = constructTopicPopularityRankChartInitDataset({ ...chartColors.value }, popularityData, metric);
+    let dataset = constructTopicPopularityRankChartInitDataset({...chartColors.value}, popularityData, metric);
     RANK_COLUMNS.value = dataset.columnTitle;
     TOPIC_DATA_LIST.value = dataset.data;
   }
@@ -328,11 +348,11 @@ const renderTopicPopularityPercentageChart = (metric: number) => {
   if (!topicPopularityPercentageChartContainer) {
     topicPopularityPercentageChartContainer = document.getElementById('topicPopularityPercentageChartContainer');
   }
-  if (popularityData !== undefined) {
+  if ((popularityData !== undefined) && (topicPopularityPercentageChartContainer)) {
     topicPopularityPercentageChart = echarts.init(topicPopularityPercentageChartContainer, null, {
       renderer: 'svg'
     });
-    topicPopularityPercentageChart.setOption(constructTopicPopularityPercentageChartInitDataset({ ...chartColors.value }, popularityData, metric));
+    topicPopularityPercentageChart.setOption(constructTopicPopularityPercentageChartInitDataset({...chartColors.value}, popularityData, metric));
   }
 };
 
@@ -378,8 +398,7 @@ onMounted(() => {
       });
       window.addEventListener('resize', updateContainer, false);
     })
-  }
-  else {
+  } else {
     renderCharts(0, sort);
     nextTick(() => {
       updateContainer();
@@ -430,6 +449,7 @@ watch(
 .row-container:not(:last-child) {
   margin-bottom: 16px;
 }
+
 :deep() .t-card__body {
   padding-top: 0;
 }

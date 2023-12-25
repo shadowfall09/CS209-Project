@@ -181,7 +181,7 @@ public class TopicController {
             return (LevenshteinDistance.getDefaultInstance().apply(topicLowerCase, temp) > 3) && (!temp.contains("java"));
         }).sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).map(entry -> {
             JSONObject resultJSONObject = new JSONObject();
-            resultJSONObject.put("topicName", entry.getKey());
+            resultJSONObject.put("topic", entry.getKey());
             resultJSONObject.put("relatedPostNumber", entry.getValue());
             resultJSONObject.put("relevance", ((double)entry.getValue()) / postTotalNumber);
             return resultJSONObject;
