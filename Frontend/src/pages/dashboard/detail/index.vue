@@ -101,6 +101,7 @@ import {UniversalTransition} from 'echarts/features';
 
 echarts.use([BarChart,ToolboxComponent,GridComponent, LegendComponent, TooltipComponent, LineChart, PieChart, TreemapChart, UniversalTransition, SunburstChart, CanvasRenderer]);
 let is_loading = ref(true);
+let deactivated = false;
 const store = useSettingStore();
 const chartColors = computed(() => store.chartColors);
 const paneListData = ref(PANE_LIST_DATA);
@@ -431,6 +432,7 @@ onMounted(() => {
     is_loading.value = false;
     is_loading.value = false;
     is_loading.value = false;
+    deactivated=false;
     nextTick(() => {
       renderCharts();
       window.addEventListener('resize', updateContainer, false);
@@ -446,12 +448,14 @@ onUnmounted(() => {
   window.removeEventListener('resize', updateContainer);
 });
 
-// onDeactivated(() => {
-//   storeModeWatch();
-//   storeBrandThemeWatch();
-// });
+onDeactivated(() => {
+  deactivated=true;
+  // storeModeWatch();
+  // storeBrandThemeWatch();
+});
 
 onActivated(() => {
+  deactivated=false;
   if (!isMounted.value) {
     return;
   }
@@ -465,20 +469,26 @@ onActivated(() => {
 watch(
   () => store.brandTheme,
   () => {
-    // [lineChart, EEChart, SFEChart, TSChart,topicPopularityBarChart].forEach((item) => {
-    //   item.dispose();
-    // });
-    // renderCharts();
-    changeChartsTheme([lineChart, EEChart, SFEChart, TSChart, topicPopularityBarChart]);
-  },
-);
-watch(
-  () => store.mode,
-  () => {
-    [lineChart, EEChart, SFEChart, TSChart,topicPopularityBarChart].forEach((item) => {
+    if (!deactivated) {
+    [lineChart, EEChart, SFEChart, TSChart, topicPopularityBarChart].forEach((item) => {
       item.dispose();
     });
     renderCharts();
+    changeChartsTheme([lineChart, EEChart, SFEChart, TSChart, topicPopularityBarChart]);
+  }
+  },
+);
+
+
+watch(
+  () => store.mode,
+  () => {
+    if(!deactivated) {
+      [lineChart, EEChart, SFEChart, TSChart, topicPopularityBarChart].forEach((item) => {
+        item.dispose();
+      });
+      renderCharts();
+    }
   },
 );
 </script>
