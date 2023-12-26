@@ -331,9 +331,7 @@ export function constructTopicPopularityBarChartInitDataset({
         label: {
           show: true,
           position: 'top',
-          textStyle: {
-            color: placeholderColor
-          }
+          color: placeholderColor
         }
       }
     ]

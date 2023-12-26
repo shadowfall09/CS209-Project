@@ -1,5 +1,18 @@
 import Layout from '@/layouts/index.vue';
 import DashboardIcon from '@/assets/assets-slide-detail.svg';
+import {h} from "vue";
+
+const IframeComponent = {
+  props: ['src'],
+  render() {
+    return h('iframe', {
+      src: this.src,
+      width: '100%',
+      height: '100%',
+      frameborder: '0'
+    });
+  }
+};
 
 export default [
   {
@@ -18,8 +31,9 @@ export default [
       {
         path: 'rest-api',
         name: 'QueryRestApi',
-        // component: () => import('@/pages/dashboard/detail/index.vue'),
-        meta: { title: 'REST API' ,frameSrc: 'http://localhost:8082/swagger-ui/index.html' },
+        component: IframeComponent,
+        props: { src: 'http://localhost:8082/swagger-ui/index.html' },
+        meta: { title: 'REST API' }
       },
     ],
   },
