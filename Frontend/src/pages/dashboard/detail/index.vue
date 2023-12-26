@@ -63,8 +63,8 @@
         </t-space>
       </template>
       <div
-        id="topicPopularityBarChartContainer"
-        ref="topicPopularityBarChartContainer"
+        id="CEContainer"
+        ref="CEContainer"
         style="width: 100%; height: 351px; display: flex; align-items: center; justify-content: center;"
       >
         <t-alert v-if="isLoadingFailed" theme="error"
@@ -217,8 +217,8 @@ const updateContainer = () => {
     height: TSContainer.clientHeight,
   });
   topicPopularityBarChart?.resize({
-    width: topicPopularityBarChartContainer.clientWidth,
-    height: topicPopularityBarChartContainer.clientHeight,
+    width: CEContainer.clientWidth,
+    height: CEContainer.clientHeight,
   });
 };
 
@@ -272,7 +272,7 @@ const renderSFEChart = () => {
   }));
 };
 let metricBarChart: number = 0;
-let topicPopularityBarChartContainer: HTMLElement;
+let CEContainer: HTMLElement;
 let topicPopularityBarChart: echarts.ECharts;
 let isLoadingFailed = false;
 let reloadTSChart = undefined;
@@ -301,10 +301,10 @@ const handleSelectionChange = (value: string, context: { trigger: string; }) => 
 };
 
 const renderTopicPopularityBarChart = (metric: number) => {
-  if (!topicPopularityBarChartContainer) {
-    topicPopularityBarChartContainer = document.getElementById('topicPopularityBarChartContainer');
+  if (!CEContainer) {
+    CEContainer = document.getElementById('CEContainer');
   }
-  topicPopularityBarChart = echarts.init(topicPopularityBarChartContainer, null, {
+  topicPopularityBarChart = echarts.init(CEContainer, null, {
     renderer: 'svg'
   });
   topicPopularityBarChart.setOption(constructTopicPopularityBarChartInitDataset({
