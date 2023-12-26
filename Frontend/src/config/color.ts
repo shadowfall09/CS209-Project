@@ -142,7 +142,7 @@ export const LIGHT_CHART_COLORS = {
 
 export const DARK_CHART_COLORS = {
   textColor: 'rgba(255, 255, 255, 0.9)',
-  placeholderColor: 'rgba(255, 255, 255, 0.35)',
+  placeholderColor: 'rgba(255,255,255,0.73)',
   borderColor: '#5e5e5e',
   containerColor: '#242424',
 };

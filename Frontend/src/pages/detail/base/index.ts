@@ -4,7 +4,7 @@ import { getChartListColor } from '@/utils/color';
 import { getRandomArray } from '@/utils/charts';
 import {TopicInfo, TopicListResult} from "@/api/model/topicModel";
 import {TdBaseTableProps} from "tdesign-vue-next";
-import {RelatedTopicInfo} from "@/api/model/topicRelatedModel";
+import {RelatedTopicInfo, RelevanceInfo} from "@/api/model/topicRelatedModel";
 import 'echarts/lib/component/dataZoom';
 
 /** 柱状图数据源 */
@@ -81,6 +81,55 @@ export function constructRelatedTopicBarChartInitDataset({
       start: 0,
       end: (20 / popularity.length) * 100
     }]
+  };
+
+  return dataset;
+}
+
+export function constructTopicRelevanceChartInitDataset({
+                                                              placeholderColor,
+                                                              borderColor,
+                                                            }: TChartColor, topic1: string, topic2: string, relevance: RelevanceInfo, metric: number) {
+  const dataset = {
+    title: {
+      text: topic1 + ' VS ' + topic2,
+      left: 'center',
+      textStyle: {
+        color: placeholderColor
+      }
+    },
+    toolbox: {
+      show: true,
+      feature: {
+        mark: {show: true},
+        dataView: {show: false},
+        restore: {show: false},
+        saveAsImage: {show: true}
+      }
+    },
+    color: getChartListColor(),
+    tooltip: {
+      formatter: 'Related Post Number: <strong> ' + relevance.relatedPostNumber + ' </strong> <br/> Relevance: <strong> ' + relevance.relevance * 100 + '% </strong>'
+    },
+    series: [
+      {
+        type: 'gauge',
+        progress: {
+          show: true
+        },
+        detail: {
+          valueAnimation: true,
+          formatter: '{value}',
+          color: placeholderColor
+        },
+        data: [
+          {
+            value: Math.round(relevance.relevance * 100 * 100000) / 100000,
+            name: 'RELEVANCE',
+          }
+        ]
+      }
+    ]
   };
 
   return dataset;

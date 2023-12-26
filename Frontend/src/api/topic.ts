@@ -20,7 +20,7 @@ export function getRelatedTopicList(topic: string) {
 }
 
 export function getRelevance(topic1: string, topic2: string) {
-  return request.get<RelatedTopicListResult>({
+  return request.get<RelevanceInfo>({
     url: Api.TopicRelevance + '/' + topic1 + '/' + topic2,
   });
 }

@@ -79,39 +79,83 @@
         </t-alert>
       </div>
     </t-card>
+    <t-card class="container-base-margin-top" :bordered="false" hover-shadow>
+      <t-space>
+        <t-input :disabled="isLoading1" v-model="inputValueTopic1" :status="isInputInvalidTopic1 ? 'warning' : null" :tips="isInputInvalidTopic1 ? 'Please input a topic' : null" placeholder="Input Topic1" clearable style="width: 350px" @change="updateSearchTopic1">
+        </t-input>
+        <t-input :disabled="isLoading1" v-model="inputValueTopic2" :status="isInputInvalidTopic2 ? 'warning' : null" :tips="isInputInvalidTopic2 ? 'Please input a topic' : null" placeholder="Input Topic2" clearable style="width: 350px" @change="updateSearchTopic2">
+        </t-input>
+        <t-button :loading="isLoading1" @click="searchTopicRelevance">
+          <template #icon> <SearchIcon /></template>
+          Search</t-button>
+      </t-space>
+    </t-card>
+    <t-card class="container-base-margin-top" :title="titleTopicRelevanceChart" hover-shadow :loading="isLoading1">
+      <div
+        id="topicRelevanceChartContainer"
+        ref="topicRelevanceChartContainer"
+        style="width: 100%; height: 600px; display: flex; align-items: center; justify-content: center;"
+      >
+        <t-alert v-if="(!topicRelevanceData) && (!isLoading1)">
+          Please Search
+        </t-alert>
+        <t-alert v-if="isLoadingFailed1" theme="error"
+                 @close="searchTopicRelevance">
+          <template #close>
+            <font-awesome-icon :icon="['fas', 'rotate-right']"/>
+          </template>
+          Loading Failed
+        </t-alert>
+      </div>
+    </t-card>
   </div>
 </template>
 <script setup lang="ts">
 
 import {SearchIcon} from 'tdesign-icons-vue-next';
 import {computed, nextTick, onMounted, onUnmounted, reactive, Ref, ref, watch} from 'vue';
-import {getRelatedTopicList} from "@/api/topic";
-import {RelatedTopicInfo} from "@/api/model/topicRelatedModel";
+import {getRelatedTopicList, getRelevance} from "@/api/topic";
+import {RelatedTopicInfo, RelevanceInfo} from "@/api/model/topicRelatedModel";
 import {EChartOption} from 'echarts';
 import * as echarts from "echarts/core";
 import {constructTopicPopularityBarChartInitDataset} from "@/pages/dashboard/base/index";
 import {useSettingStore} from "@/store";
 import {changeChartsTheme} from "@/utils/color";
-import {constructRelatedTopicBarChartInitDataset} from "@/pages/detail/base/index";
-import {GridComponent, LegendComponent, ToolboxComponent, TooltipComponent} from "echarts/components";
-import {BarChart, LineChart, PieChart} from "echarts/charts";
+import {
+  constructRelatedTopicBarChartInitDataset,
+  constructTopicRelevanceChartInitDataset
+} from "@/pages/detail/base/index";
+import {GridComponent, LegendComponent, ToolboxComponent, TooltipComponent, TitleComponent} from "echarts/components";
+import {BarChart, LineChart, PieChart, GaugeChart} from "echarts/charts";
 import {CanvasRenderer, SVGRenderer} from "echarts/renderers";
 import {LabelLayout} from "echarts/features";
 
-echarts.use([ToolboxComponent, TooltipComponent, LegendComponent, GridComponent, LineChart, BarChart, PieChart, CanvasRenderer, SVGRenderer, LabelLayout]);
+echarts.use([ToolboxComponent, TooltipComponent, LegendComponent, GridComponent, TitleComponent, LineChart, BarChart, PieChart, CanvasRenderer, SVGRenderer, LabelLayout, GaugeChart]);
 
 const tableData = ref([]);
 const total = 5;
 let inputTopic: string = undefined;
+let inputTopic1: string = undefined;
+let inputTopic2: string = undefined;
 let isInputInvalid = ref(false);
+let isInputInvalidTopic1 = ref(false);
+let isInputInvalidTopic2 = ref(false);
 let isLoading = ref(false);
+let isLoading1 = ref(false);
 let isLoadingFailed = false;
+let isLoadingFailed1 = false;
 let inputValue = ref("");
+let inputValueTopic1 = ref("");
+let inputValueTopic2 = ref("");
 let relatedTopicData: Ref<Array<RelatedTopicInfo>> = ref(undefined);
+let topicRelevanceData: Ref<RelevanceInfo> = ref(undefined);
 
 let relatedTopicBarChartContainer: HTMLElement;
 let relatedTopicBarChart: echarts.ECharts;
+let topicRelevanceChartContainer: HTMLElement;
+let topicRelevanceChart: echarts.ECharts;
 let metricBarChart: number = 0;
+let metricRelevanceChart: number = 0;
 
 const store = useSettingStore();
 const resizeTime = ref(1);
@@ -121,6 +165,16 @@ const chartColors = computed(() => store.chartColors);
 const updateSearchTopic = (value: string) => {
   isInputInvalid.value = value === "";
   inputTopic = value;
+}
+
+const updateSearchTopic1 = (value: string) => {
+  isInputInvalidTopic1.value = value === "";
+  inputTopic1 = value;
+}
+
+const updateSearchTopic2 = (value: string) => {
+  isInputInvalidTopic2.value = value === "";
+  inputTopic2 = value;
 }
 
 const fetchData = async () => {
@@ -145,6 +199,29 @@ const fetchData = async () => {
   return;
 };
 
+const fetchData1 = async () => {
+  isLoading1.value = true;
+  isLoadingFailed1 = false;
+  await nextTick();
+  topicRelevanceData.value = undefined;
+  sessionStorage.removeItem("inputTopic1");
+  sessionStorage.removeItem("inputTopic2");
+  sessionStorage.removeItem("topicRelevanceData");
+  try {
+    topicRelevanceData.value = await getRelevance(inputTopic1, inputTopic2);
+    sessionStorage.setItem("inputTopic1", inputTopic1);
+    sessionStorage.setItem("inputTopic2", inputTopic2);
+    sessionStorage.setItem("topicRelevanceData", JSON.stringify(topicRelevanceData.value));
+  } catch (e) {
+    console.log(e);
+    isLoadingFailed1 = true;
+  } finally {
+    isLoading1.value = false;
+    await nextTick();
+  }
+  return;
+};
+
 const searchRelatedTopic = () => {
   if ((inputTopic !== undefined) && (inputTopic !== "")) {
     isInputInvalid.value = false;
@@ -162,6 +239,29 @@ const searchRelatedTopic = () => {
   }
   else {
     isInputInvalid.value = true;
+  }
+}
+
+const searchTopicRelevance = () => {
+  if ((inputTopic1 !== undefined) && (inputTopic1 !== "") && (inputTopic2 !== undefined) && (inputTopic2 !== "")) {
+    isInputInvalidTopic1.value = false;
+    isInputInvalidTopic2.value = false;
+    fetchData1().then(() => {
+      if (topicRelevanceData.value !== undefined) {
+        renderCharts1(0);
+        nextTick(() => {
+          updateContainer1();
+        });
+      }
+    })
+  }
+  else {
+    if ((inputTopic1 === undefined) || (inputTopic1 === "")) {
+      isInputInvalidTopic1.value = true;
+    }
+    if ((inputTopic2 === undefined) || (inputTopic2 === "")) {
+      isInputInvalidTopic2.value = true;
+    }
   }
 }
 
@@ -217,7 +317,6 @@ const handleSelectionChange = (value: string, context: { trigger: string; }) => 
     }
   }
 };
-
 const renderRelatedTopicBarChart = (metric: number) => {
   if (!relatedTopicBarChartContainer) {
     relatedTopicBarChartContainer = document.getElementById('relatedTopicBarChartContainer');
@@ -243,8 +342,24 @@ const renderRelatedTopicBarChart = (metric: number) => {
   }
 };
 
+const renderTopicRelevanceChart = (metric: number) => {
+  if (!topicRelevanceChartContainer) {
+    topicRelevanceChartContainer = document.getElementById('topicRelevanceChartContainer');
+  }
+  if ((topicRelevanceData.value !== undefined) && (topicRelevanceChartContainer)) {
+    topicRelevanceChart = echarts.init(topicRelevanceChartContainer, null, {
+      renderer: 'svg'
+    });
+    topicRelevanceChart.setOption(constructTopicRelevanceChartInitDataset({...chartColors.value}, inputTopic1, inputTopic2, topicRelevanceData.value, metric));
+  }
+};
+
 const renderCharts = (metric: number) => {
   renderRelatedTopicBarChart(metric);
+};
+
+const renderCharts1 = (metric: number) => {
+  renderTopicRelevanceChart(metric);
 };
 
 const updateContainer = () => {
@@ -264,13 +379,34 @@ const updateContainer = () => {
   }
 };
 
+const updateContainer1 = () => {
+  if (document.documentElement.clientWidth >= 1400 && document.documentElement.clientWidth < 1920) {
+    resizeTime.value = Number((document.documentElement.clientWidth / 2080).toFixed(2));
+  } else if (document.documentElement.clientWidth < 1080) {
+    resizeTime.value = Number((document.documentElement.clientWidth / 1080).toFixed(2));
+  } else {
+    resizeTime.value = 1;
+  }
+
+  if (topicRelevanceChart !== undefined) {
+    topicRelevanceChart.resize({
+      width: topicRelevanceChartContainer.clientWidth,
+      height: topicRelevanceChartContainer.clientHeight,
+    });
+  }
+};
+
 const title = 'Related Topic';
 const titleBarChart = 'Related Topic Bar Chart';
 const infoMessage = `Experience a refined exploration of Stack Overflow topics. Simply input any word or phrase, and witness related topics ranked by their "intimacy." This unique metric provides a nuanced understanding of connections. Visualize these relationships seamlessly, enhancing your knowledge journey. Elevate your exploration of information with our sophisticated feature.`;
+const titleTopicRelevanceChart = 'Topic Relevance Chart';
 
 onMounted(() => {
   let inputTopicStored = sessionStorage.getItem("inputTopic");
   let relatedTopicDataString = sessionStorage.getItem("relatedTopicData");
+  let inputTopic1Stored = sessionStorage.getItem("inputTopic1");
+  let inputTopic2Stored = sessionStorage.getItem("inputTopic2");
+  let topicRelevanceDataString = sessionStorage.getItem("topicRelevanceData");
   let currentPage = sessionStorage.getItem("currentPage");
   let currentPageSize = sessionStorage.getItem("currentPageSize");
   if (currentPage !== null) {
@@ -289,11 +425,24 @@ onMounted(() => {
       updateContainer();
     });
   }
+  if ((inputTopic1Stored != null) && (inputTopic2Stored != null) && (topicRelevanceDataString != null)) {
+    inputTopic1 = inputTopic1Stored;
+    inputTopic2 = inputTopic2Stored;
+    inputValueTopic1.value = inputTopic1Stored;
+    inputValueTopic2.value = inputTopic2Stored;
+    topicRelevanceData.value = JSON.parse(topicRelevanceDataString);
+    renderCharts1(0);
+    nextTick(() => {
+      updateContainer1();
+    });
+  }
   window.addEventListener('resize', updateContainer, false);
+  window.addEventListener('resize', updateContainer1, false);
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', updateContainer);
+  window.removeEventListener('resize', updateContainer1);
 });
 
 watch(
@@ -301,6 +450,9 @@ watch(
   () => {
     if (relatedTopicBarChart !== undefined) {
       changeChartsTheme([relatedTopicBarChart]);
+    }
+    if (topicRelevanceChart !== undefined) {
+      changeChartsTheme([topicRelevanceChart]);
     }
   },
 );
@@ -314,6 +466,13 @@ watch(
       });
 
       renderRelatedTopicBarChart(metricBarChart);
+    }
+    if (topicRelevanceChart !== undefined) {
+      [topicRelevanceChart].forEach((item) => {
+        item.dispose();
+      });
+
+      renderTopicRelevanceChart(metricRelevanceChart);
     }
   },
 );
