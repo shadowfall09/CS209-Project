@@ -160,7 +160,7 @@ import {
   constructTopicPopularityBarChartInitDataset,
   constructTopicPopularityPercentageChartInitDataset,
   constructTopicPopularityRankChartInitDataset
-} from "@/pages/dashboard/base/index";
+} from "@/pages/showcase/topic/index";
 import {getTopicList} from "@/api/topic";
 
 echarts.use([ToolboxComponent, TooltipComponent, LegendComponent, GridComponent, LineChart, BarChart, PieChart, CanvasRenderer, SVGRenderer, LabelLayout]);

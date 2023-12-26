@@ -1,5 +1,5 @@
-import { request } from '@/utils/request';
-import type { ErrorAndException,BugListResult,Bug } from '@/api/model/bugModel';
+import {request} from '@/utils/request';
+import type {BugListResult, ErrorAndException} from '@/api/model/bugModel';
 
 const Api = {
   ErrorAndException: '/bug/ErrorAndException',

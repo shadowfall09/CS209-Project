@@ -1,13 +1,13 @@
-import { defineStore } from 'pinia';
-import type { TRouterInfo, TTabRouterType } from '@/types/interface';
-import { store } from '@/store';
+import {defineStore} from 'pinia';
+import type {TRouterInfo, TTabRouterType} from '@/types/interface';
+import {store} from '@/store';
 
 const homeRoute: Array<TRouterInfo> = [
   {
-    path: '/dashboard/base',
+    path: '/showcase/topic',
     routeIdx: 0,
-    title: '仪表盘',
-    name: 'DashboardBase',
+    title: 'Showcase',
+    name: 'TopicPopularity',
     isHome: true,
   },
 ];

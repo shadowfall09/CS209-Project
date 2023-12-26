@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia';
-import { TOKEN_NAME } from '@/config/global';
-import { store, usePermissionStore } from '@/store';
+import {defineStore} from 'pinia';
+import {TOKEN_NAME} from '@/config/global';
+import {store, usePermissionStore} from '@/store';
 
 const InitUserInfo = {
   roles: [],

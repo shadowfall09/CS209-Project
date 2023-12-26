@@ -1,8 +1,9 @@
-import { defineStore } from 'pinia';
+import {defineStore} from 'pinia';
 import keys from 'lodash/keys';
-import { COLOR_TOKEN, LIGHT_CHART_COLORS, DARK_CHART_COLORS, TColorSeries } from '@/config/color';
+import {COLOR_TOKEN, DARK_CHART_COLORS, LIGHT_CHART_COLORS, TColorSeries} from '@/config/color';
 import STYLE_CONFIG from '@/config/style';
-import { store } from '@/store';
+import {store} from '@/store';
+
 const state = {
   ...STYLE_CONFIG,
   showSettingPanel: false,

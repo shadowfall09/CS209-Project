@@ -67,11 +67,11 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useSettingStore, useTabsRouterStore } from '@/store';
-import { prefix } from '@/config/global';
-import type { TRouterInfo } from '@/types/interface';
+import {computed, nextTick, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {useSettingStore, useTabsRouterStore} from '@/store';
+import {prefix} from '@/config/global';
+import type {TRouterInfo} from '@/types/interface';
 
 import LContent from './Content.vue';
 import LBreadcrumb from './Breadcrumb.vue';

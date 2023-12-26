@@ -1,6 +1,6 @@
-import { request } from '@/utils/request';
-import type { TopicListResult } from '@/api/model/topicModel';
-import type { RelatedTopicListResult, RelevanceInfo } from '@/api/model/topicRelatedModel';
+import {request} from '@/utils/request';
+import type {TopicListResult} from '@/api/model/topicModel';
+import type {RelatedTopicListResult, RelevanceInfo} from '@/api/model/topicRelatedModel';
 
 const Api = {
   TopicList: '/topic/popularity',

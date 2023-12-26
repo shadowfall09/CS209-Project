@@ -2,9 +2,9 @@
   <div :style="style" class="color-container" />
 </template>
 <script setup lang="ts">
-import { computed } from 'vue';
-import { getBrandColor } from '@/config/color';
-import { useSettingStore } from '@/store';
+import {computed} from 'vue';
+import {getBrandColor} from '@/config/color';
+import {useSettingStore} from '@/store';
 
 const store = useSettingStore();
 

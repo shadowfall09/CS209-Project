@@ -3,22 +3,22 @@ import DashboardIcon from '@/assets/assets-slide-dashboard.svg';
 
 export default [
   {
-    path: '/dashboard',
+    path: '/showcase',
     component: Layout,
-    redirect: '/dashboard/base',
-    name: 'dashboard',
+    redirect: '/showcase/topic',
+    name: 'ashowcase',
     meta: { title: 'Showcase', icon: DashboardIcon },
     children: [
       {
-        path: 'base',
+        path: 'topic',
         name: 'TopicPopularity',
-        component: () => import('@/pages/dashboard/base/index.vue'),
+        component: () => import('@/pages/showcase/topic/index.vue'),
         meta: { title: 'Topic Popularity' },
       },
       {
-        path: 'detail',
-        name: 'DashboardDetail',
-        component: () => import('@/pages/dashboard/detail/index.vue'),
+        path: 'bug',
+        name: 'BugPopularity',
+        component: () => import('@/pages/showcase/bug/index.vue'),
         meta: { title: 'Bug Popularity' },
       },
     ],

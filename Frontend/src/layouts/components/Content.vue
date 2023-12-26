@@ -10,9 +10,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { ComputedRef } from 'vue';
-import { useTabsRouterStore } from '@/store';
+import type {ComputedRef} from 'vue';
+import {computed} from 'vue';
+import {useTabsRouterStore} from '@/store';
 import FramePage from '@/layouts/frame/index.vue';
 
 // <suspense>标签属于实验性功能，请谨慎使用

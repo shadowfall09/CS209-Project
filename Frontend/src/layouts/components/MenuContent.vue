@@ -29,11 +29,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { PropType } from 'vue';
+import type {PropType} from 'vue';
+import {computed} from 'vue';
 import isObject from 'lodash/isObject';
-import type { MenuRoute } from '@/types/interface';
-import { getActive } from '@/router';
+import type {MenuRoute} from '@/types/interface';
+import {getActive} from '@/router';
 
 const props = defineProps({
   navData: {

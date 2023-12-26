@@ -73,18 +73,18 @@
   </t-drawer>
 </template>
 <script setup lang="ts">
-import { ref, computed, onMounted, watchEffect } from 'vue';
-import { MessagePlugin } from 'tdesign-vue-next';
-import type { PopupVisibleChangeContext } from 'tdesign-vue-next';
-import { Color } from 'tvision-color';
+import {computed, onMounted, ref, watchEffect} from 'vue';
+import type {PopupVisibleChangeContext} from 'tdesign-vue-next';
+import {MessagePlugin} from 'tdesign-vue-next';
+import {Color} from 'tvision-color';
 import useClipboard from 'vue-clipboard3';
 
-import { useSettingStore } from '@/store';
+import {useSettingStore} from '@/store';
 import Thumbnail from '@/components/thumbnail/index.vue';
 import ColorContainer from '@/components/color/index.vue';
 
 import STYLE_CONFIG from '@/config/style';
-import { insertThemeStylesheet, generateColorMap } from '@/config/color';
+import {generateColorMap, insertThemeStylesheet} from '@/config/color';
 
 import SettingDarkIcon from '@/assets/assets-setting-dark.svg';
 import SettingLightIcon from '@/assets/assets-setting-light.svg';

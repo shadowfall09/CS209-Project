@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { Color } from 'tvision-color';
+import {Color} from 'tvision-color';
 
 export type TColorToken = Record<string, string>;
 export type TColorSeries = Record<string, TColorToken>;

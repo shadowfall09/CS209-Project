@@ -1,7 +1,7 @@
-import { Color } from 'tvision-color';
+import {Color} from 'tvision-color';
 import * as echarts from 'echarts/core';
-import { getBrandColor, defaultLightColor, defaultDarkColor } from '@/config/color';
-import { getSettingStore } from '@/store';
+import {defaultDarkColor, defaultLightColor, getBrandColor} from '@/config/color';
+import {getSettingStore} from '@/store';
 
 /**
  * 依据主题类型获取颜色

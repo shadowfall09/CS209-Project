@@ -24,17 +24,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useRoute } from 'vue-router';
-import { useSettingStore, useTabsRouterStore } from '@/store';
+import {computed, onMounted, watch} from 'vue';
+import {storeToRefs} from 'pinia';
+import {useRoute} from 'vue-router';
+import {useSettingStore, useTabsRouterStore} from '@/store';
 
 import SettingCom from './setting.vue';
 import LayoutHeader from './components/LayoutHeader.vue';
 import LayoutContent from './components/LayoutContent.vue';
 import LayoutSideNav from './components/LayoutSideNav.vue';
 
-import { prefix } from '@/config/global';
+import {prefix} from '@/config/global';
 
 import '@/style/layout.less';
 

@@ -1,8 +1,7 @@
-import { MessagePlugin } from 'tdesign-vue-next';
+import {MessagePlugin} from 'tdesign-vue-next';
 import NProgress from 'nprogress'; // progress bar
 import 'nprogress/nprogress.css'; // progress bar style
-
-import { getPermissionStore, getUserStore } from '@/store';
+import {getPermissionStore, getUserStore} from '@/store';
 import router from '@/router';
 
 NProgress.configure({ showSpinner: false });

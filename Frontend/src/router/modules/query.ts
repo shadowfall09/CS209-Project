@@ -25,7 +25,7 @@ export default [
       {
         path: 'topic',
         name: 'QueryTopic',
-        component: () => import('@/pages/detail/base/index.vue'),
+        component: () => import('@/pages/query/topic/index.vue'),
         meta: { title: 'Related Topic' },
       },
       {

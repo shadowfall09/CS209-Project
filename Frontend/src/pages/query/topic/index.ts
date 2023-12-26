@@ -1,9 +1,5 @@
-import dayjs from 'dayjs';
-import { TChartColor } from '@/config/color';
-import { getChartListColor } from '@/utils/color';
-import { getRandomArray } from '@/utils/charts';
-import {TopicInfo, TopicListResult} from "@/api/model/topicModel";
-import {TdBaseTableProps} from "tdesign-vue-next";
+import {TChartColor} from '@/config/color';
+import {getChartListColor} from '@/utils/color';
 import {RelatedTopicInfo, RelevanceInfo} from "@/api/model/topicRelatedModel";
 import 'echarts/lib/component/dataZoom';
 

@@ -81,7 +81,7 @@
 
 <script lang="ts">
 export default {
-  name: 'DashboardDetail',
+  name: 'BugPopularity',
 };
 </script>
 
@@ -101,7 +101,6 @@ import {UniversalTransition} from 'echarts/features';
 
 echarts.use([BarChart,ToolboxComponent,GridComponent, LegendComponent, TooltipComponent, LineChart, PieChart, TreemapChart, UniversalTransition, SunburstChart, CanvasRenderer]);
 let is_loading = ref(true);
-let deactivated = false;
 const store = useSettingStore();
 const chartColors = computed(() => store.chartColors);
 const paneListData = ref(PANE_LIST_DATA);
@@ -113,7 +112,7 @@ const state = reactive({
   ExceptionList: null,
 });
 let isMounted = ref(false);
-
+let undeactivated = false;
 
 const getErrorAndException = async () => {
   try {
@@ -432,7 +431,7 @@ onMounted(() => {
     is_loading.value = false;
     is_loading.value = false;
     is_loading.value = false;
-    deactivated=false;
+    undeactivated = false;
     nextTick(() => {
       renderCharts();
       window.addEventListener('resize', updateContainer, false);
@@ -449,13 +448,11 @@ onUnmounted(() => {
 });
 
 onDeactivated(() => {
-  deactivated=true;
-  // storeModeWatch();
-  // storeBrandThemeWatch();
+undeactivated = true;
 });
 
 onActivated(() => {
-  deactivated=false;
+  undeactivated = false;
   if (!isMounted.value) {
     return;
   }
@@ -469,21 +466,19 @@ onActivated(() => {
 watch(
   () => store.brandTheme,
   () => {
-    if (!deactivated) {
-    [lineChart, EEChart, SFEChart, TSChart, topicPopularityBarChart].forEach((item) => {
-      item.dispose();
-    });
-    renderCharts();
-    changeChartsTheme([lineChart, EEChart, SFEChart, TSChart, topicPopularityBarChart]);
-  }
+    if(!undeactivated) {
+      [lineChart, EEChart, SFEChart, TSChart, topicPopularityBarChart].forEach((item) => {
+        item.dispose();
+      });
+      renderCharts();
+      changeChartsTheme([lineChart, EEChart, SFEChart, TSChart, topicPopularityBarChart]);
+    }
   },
 );
-
-
 watch(
   () => store.mode,
   () => {
-    if(!deactivated) {
+    if(!undeactivated) {
       [lineChart, EEChart, SFEChart, TSChart, topicPopularityBarChart].forEach((item) => {
         item.dispose();
       });

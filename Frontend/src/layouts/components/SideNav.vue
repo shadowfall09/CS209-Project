@@ -16,16 +16,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import type { PropType } from 'vue';
-import { useRouter } from 'vue-router';
+import type {PropType} from 'vue';
+import {computed, onMounted} from 'vue';
+import {useRouter} from 'vue-router';
 import union from 'lodash/union';
 
-import { useSettingStore } from '@/store';
-import { prefix } from '@/config/global';
+import {useSettingStore} from '@/store';
+import {prefix} from '@/config/global';
 import pgk from '../../../package.json';
-import type { MenuRoute } from '@/types/interface';
-import { getActive, getRoutesExpanded } from '@/router';
+import type {MenuRoute} from '@/types/interface';
+import {getActive, getRoutesExpanded} from '@/router';
 
 import AssetLogo from '@/assets/assets-stackoverflow-logo.svg?component';
 import AssetLogoFull from '@/assets/assets-logo-full.svg?component';
@@ -115,7 +115,7 @@ onMounted(() => {
 });
 
 const goHome = () => {
-  router.push('/dashboard/base');
+  router.push('/showcase/topic');
 };
 
 const getLogo = () => {

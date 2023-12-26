@@ -46,10 +46,10 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-import { storeToRefs } from 'pinia';
-import { useNotificationStore } from '@/store';
-import type { NotificationItem } from '@/types/interface';
+import {useRouter} from 'vue-router';
+import {storeToRefs} from 'pinia';
+import {useNotificationStore} from '@/store';
+import type {NotificationItem} from '@/types/interface';
 
 const router = useRouter();
 const store = useNotificationStore();

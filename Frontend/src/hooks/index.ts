@@ -1,4 +1,4 @@
-import { ref, Ref, onUnmounted, onMounted } from 'vue';
+import {onMounted, onUnmounted, ref, Ref} from 'vue';
 import * as echarts from 'echarts/core';
 
 /**

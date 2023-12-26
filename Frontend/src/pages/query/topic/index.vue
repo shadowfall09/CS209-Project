@@ -118,15 +118,14 @@ import {getRelatedTopicList, getRelevance} from "@/api/topic";
 import {RelatedTopicInfo, RelevanceInfo} from "@/api/model/topicRelatedModel";
 import {EChartOption} from 'echarts';
 import * as echarts from "echarts/core";
-import {constructTopicPopularityBarChartInitDataset} from "@/pages/dashboard/base/index";
 import {useSettingStore} from "@/store";
 import {changeChartsTheme} from "@/utils/color";
 import {
   constructRelatedTopicBarChartInitDataset,
   constructTopicRelevanceChartInitDataset
-} from "@/pages/detail/base/index";
-import {GridComponent, LegendComponent, ToolboxComponent, TooltipComponent, TitleComponent} from "echarts/components";
-import {BarChart, LineChart, PieChart, GaugeChart} from "echarts/charts";
+} from "@/pages/query/topic/index";
+import {GridComponent, LegendComponent, TitleComponent, ToolboxComponent, TooltipComponent} from "echarts/components";
+import {BarChart, GaugeChart, LineChart, PieChart} from "echarts/charts";
 import {CanvasRenderer, SVGRenderer} from "echarts/renderers";
 import {LabelLayout} from "echarts/features";
 
