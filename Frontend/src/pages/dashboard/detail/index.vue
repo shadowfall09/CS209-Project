@@ -275,6 +275,7 @@ let metricBarChart: number = 0;
 let topicPopularityBarChartContainer: HTMLElement;
 let topicPopularityBarChart: echarts.ECharts;
 let isLoadingFailed = false;
+let reloadTSChart = undefined;
 
 
 const handleSelectionChange = (value: string, context: { trigger: string; }) => {
@@ -391,7 +392,7 @@ const renderTSChart = () => {
   };
   let currentOption = treemapOption;
   TSChart.setOption(currentOption);
-  setInterval(function () {
+  reloadTSChart = setInterval(function () {
     currentOption =
       currentOption === treemapOption ? sunburstOption : treemapOption;
     currentOption.color = getChartListColor();
@@ -401,6 +402,9 @@ const renderTSChart = () => {
 };
 
 const renderCharts = () => {
+  if (reloadTSChart !== undefined) {
+  clearInterval(reloadTSChart)
+}
   if (document.documentElement.clientWidth >= 1400 && document.documentElement.clientWidth < 1920) {
     resizeTime.value = Number((document.documentElement.clientWidth / 2080).toFixed(2));
   } else if (document.documentElement.clientWidth < 1080) {
