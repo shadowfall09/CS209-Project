@@ -46,9 +46,9 @@ public class TopicController {
 
     @GetMapping("popularity/{limit}")
     public Result popularity(HttpServletResponse response, @PathVariable("limit") Long limit) {
-        log.info("Request Topic Popularity Info");
+        log.info("Request Topic Popularity Info, limit = " + limit);
         if (limit < -1) {
-            throw new ServiceException("400", "Invalid path variable");
+            throw new ServiceException("400", "Invalid path variable, limit = " + limit);
         }
         Stream<String> topicStream = Arrays.stream(topics);
         if (limit != -1) {
@@ -64,7 +64,7 @@ public class TopicController {
             try {
                 return resultFuture.get();
             } catch (InterruptedException | ExecutionException e) {
-                throw new ServiceException("500", "An error occur when calculating the popularity of topics");
+                throw new ServiceException("500", "An unknown error occur when calculating the popularity of topics");
             }
         }).collect(Collectors.toList());
         JSONObject resultJSONObject = new JSONObject();
@@ -74,15 +74,15 @@ public class TopicController {
 
     @GetMapping("popularity/search/{topic}")
     public Result searchTopic(HttpServletResponse response, @PathVariable("topic") String topic) {
-        log.info("Search Topic Popularity Info");
+        log.info("Search Topic Popularity Info, topic = " + topic);
         return Result.success(response, getPopularityByTopicName(topic));
     }
 
     @GetMapping("popularityAllTopics/{metric}/{limit}")
     public Result popularityAllTopics(HttpServletResponse response, @PathVariable("metric") Integer metric, @PathVariable("limit") Integer limit) {
-        log.info("Request All Topic Popularity Info");
+        log.info("Request All Topic Popularity Info, metric = " + metric + ", limit = " + limit);
         if ((metric < -1) || (metric > 5) || (limit < -1)) {
-            throw new ServiceException("400", "Invalid path variable");
+            throw new ServiceException("400", "Invalid path variable, metric = " + metric + ", limit = " + limit);
         }
         QueryWrapper<Tag> tagQueryWrapper = new QueryWrapper<>();
         if (limit != -1) {
@@ -160,7 +160,7 @@ public class TopicController {
 
     @GetMapping("related/search/{topic}")
     public Result searchRelatedTopic(HttpServletResponse response, @PathVariable("topic") String topic) {
-        log.info("Search Related Topic");
+        log.info("Search Related Topic, topic = " + topic);
         String topicLowerCase = topic.toLowerCase();
         List<String> questionIdList = questionService.list(new QueryWrapper<Question>().select("id").like("lower(title)", topicLowerCase).or().like("lower(content)", topicLowerCase)).stream().map(Question::getId).toList();
         List<String> answerIdList = answerService.list(new QueryWrapper<Answer>().select("id").like("lower(title)", topicLowerCase).or().like("lower(content)", topicLowerCase)).stream().map(Answer::getId).toList();
@@ -201,7 +201,7 @@ public class TopicController {
 
     @GetMapping("related/search/{topic1}/{topic2}")
     public Result searchTwoTopicRelevance(HttpServletResponse response, @PathVariable("topic1") String topic1, @PathVariable("topic2") String topic2) {
-        log.info("Search Two Topic Relevance");
+        log.info("Search Two Topic Relevance, topic1 = " + topic1 + ", topic2 = " + topic2);
         String topic1LowerCase = topic1.toLowerCase();
         String topic2LowerCase = topic2.toLowerCase();
         List<String> questionIdTopic1List = questionService.list(new QueryWrapper<Question>().select("id").like("lower(title)", topic1LowerCase).or().like("lower(content)", topic1LowerCase)).stream().map(Question::getId).toList();
