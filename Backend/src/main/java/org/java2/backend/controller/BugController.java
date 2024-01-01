@@ -59,7 +59,7 @@ public class BugController {
 
     @GetMapping("/Exception/{limit}")
     public Result Exception(HttpServletResponse response, @PathVariable("limit") Integer limit) throws ExecutionException, InterruptedException {
-        log.info("Request Exception Info");
+        log.info("Request Exception Info with a limit "+limit);
         if(limit<=0){
             throw new ServiceException("401","Limit must be positive");
         }
@@ -75,7 +75,7 @@ public class BugController {
 
     @GetMapping("/FatalError/{limit}")
     public Result FatalError(HttpServletResponse response, @PathVariable("limit") Integer limit) throws ExecutionException, InterruptedException {
-        log.info("Request Fatal Error Info");
+        log.info("Request Fatal Error Info with a limit "+limit);
         if(limit<=0){
             throw new ServiceException("401","Limit must be positive");
         }
@@ -107,7 +107,7 @@ public class BugController {
 
     @GetMapping("/SyntaxError/{limit}")
     public Result SyntaxError(HttpServletResponse response, @PathVariable("limit") Integer limit) throws ExecutionException, InterruptedException {
-        log.info("Request Syntax Error Info");
+        log.info("Request Syntax Error Info with a limit "+limit);
         if(limit<=0){
             throw new ServiceException("401","Limit must be positive");
         }
@@ -343,7 +343,7 @@ public class BugController {
 
     @GetMapping("/Error/{limit}")
     public Result getError(HttpServletResponse response, @PathVariable("limit") Integer limit) throws ExecutionException, InterruptedException {
-        log.info("Request Error Info");
+        log.info("Request Error Info with a limit "+limit);
         if(limit<=0){
             throw new ServiceException("401","Limit must be positive");
         }
@@ -362,7 +362,7 @@ public class BugController {
 
     @GetMapping("/Exception/search/{exception}")
     public Result getException(HttpServletResponse response, @PathVariable("exception") String exception) throws ExecutionException, InterruptedException {
-        log.info("Request Specific Exception Info");
+        log.info("Request Specific Exception Info of "+exception);
         getException();
         HashMap<String, Integer> exceptions = ExceptionMap;
         return getSearchResult(response, exception, exceptions);
@@ -390,7 +390,7 @@ public class BugController {
 
     @GetMapping("/Error/search/{error}")
     public Result getError(HttpServletResponse response, @PathVariable("error") String error) throws ExecutionException, InterruptedException {
-        log.info("Request Specific Error Info");
+        log.info("Request Specific Error Info of "+error);
         HashMap<String, Integer> errors = new HashMap<>();
         getSyntaxError();
         getFatalError();
